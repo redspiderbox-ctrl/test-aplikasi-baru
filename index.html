@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Manajemen Sparepart Bekas</title>
+<title>Sistem Manajemen Sparepart</title>
 
 <!-- Link Font Awesome untuk Ikon -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -305,6 +305,14 @@ tr.new-row td[contenteditable]{ background:#ecfdf5; border-color: var(--success)
 .action-col { width: 50px; text-align: center; }
 tr.selected-row td { background-color: #f0f9ff; }
 
+/* Style untuk checkbox utama di header */
+th .master-checkbox {
+    cursor: pointer;
+    accent-color: var(--primary);
+    width: 16px;
+    height: 16px;
+}
+
 </style>
 </head>
 
@@ -315,8 +323,8 @@ tr.selected-row td { background-color: #f0f9ff; }
     <div class="header-content">
         <i class="fas fa-warehouse"></i>
         <div>
-            <h3>Manajemen Data Sparepart Bekas</h3>
-            <p>Upload, kelola, dan unduh data sparepart bekas Anda secara efisien.</p>
+            <h3>Manajemen Data Sparepart</h3>
+            <p>Upload, kelola, dan unduh data inventaris Anda secara efisien.</p>
         </div>
     </div>
 
@@ -342,7 +350,10 @@ tr.selected-row td { background-color: #f0f9ff; }
                             <th>Nomor</th><th>Catatan</th><th>Part</th><th>Qty Transaksi</th>
                             <th>Part Demand</th><th>Serial Number</th><th>Return To Factory</th>
                             <th>Claim To Factory</th><th>Teknisi Perbaikan</th>
-                            <th style="text-align:center">Pilih</th>
+                            <th style="text-align:center">
+                                <!-- Checkbox Pilih Semua -->
+                                <input type="checkbox" id="checkAll" class="master-checkbox" title="Pilih Semua">
+                            </th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -389,7 +400,7 @@ tr.selected-row td { background-color: #f0f9ff; }
                 </table>
             </div>
 
-            <!-- AREA KETERANGAN MANUAL (BARU) -->
+            <!-- AREA KETERANGAN MANUAL -->
             <div class="manual-notes-section">
                 <div class="notes-title"><i class="fas fa-pen"></i> Keterangan Tambahan (Manual) :</div>
                 <div id="manualNotesContainer">
@@ -428,6 +439,7 @@ tr.selected-row td { background-color: #f0f9ff; }
     const search2 = document.getElementById("search2");
     const addRowBtn = document.getElementById("addRowBtn");
     const resetBtn = document.getElementById("resetBtn");
+    const checkAllBtn = document.getElementById("checkAll"); // Checkbox Pilih Semua
 
     const table1 = document.querySelector("#table1 tbody");
     const table2 = document.querySelector("#table2 tbody");
@@ -452,7 +464,7 @@ tr.selected-row td { background-color: #f0f9ff; }
             table1.innerHTML = ""; table2.innerHTML = "";
             totalQty1.innerText = "0"; totalQty2.innerText = "0";
             fileInput.value = ""; search1.value = ""; search2.value = "";
-            // Reset juga manual notes
+            checkAllBtn.checked = false; // Reset check all
             document.querySelectorAll('.note-input').forEach(el => el.innerText = "");
         }
     });
@@ -468,9 +480,36 @@ tr.selected-row td { background-color: #f0f9ff; }
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             data1 = XLSX.utils.sheet_to_json(sheet, { defval: "" });
             selectedIndexes.clear();
+            checkAllBtn.checked = false; // Reset check all on new upload
             render1(data1);
         };
         reader.readAsArrayBuffer(file);
+    });
+
+    // --- LOGIKA CHECKBOX PILIH SEMUA ---
+    checkAllBtn.addEventListener("change", (e) => {
+        const isChecked = e.target.checked;
+        // Ambil semua checkbox di body
+        const checkboxes = table1.querySelectorAll("input[type='checkbox']");
+        
+        if (isChecked) {
+            // Tambahkan semua index yang tampil ke selectedIndexes
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.dataset.i);
+                selectedIndexes.add(idx);
+                cb.checked = true;
+                cb.closest("tr").classList.add("selected-row");
+            });
+        } else {
+            // Hapus semua index yang tampil dari selectedIndexes
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.dataset.i);
+                selectedIndexes.delete(idx);
+                cb.checked = false;
+                cb.closest("tr").classList.remove("selected-row");
+            });
+        }
+        updateTab2Data();
     });
 
     // --- PENCARIAN TAB 1 ---
@@ -545,8 +584,30 @@ tr.selected-row td { background-color: #f0f9ff; }
                 if (e.target.checked) { selectedIndexes.add(idx); e.target.closest("tr").classList.add("selected-row"); }
                 else { selectedIndexes.delete(idx); e.target.closest("tr").classList.remove("selected-row"); }
                 updateTab2Data();
+                // Update status checkbox 'Pilih Semua'
+                updateCheckAllState();
             });
         });
+        
+        // Update status checkbox header saat render
+        updateCheckAllState();
+    }
+
+    // Fungsi untuk update status checkbox 'Pilih Semua'
+    function updateCheckAllState() {
+        const totalRows = data1.length;
+        const selectedRows = selectedIndexes.size;
+        
+        if (totalRows > 0 && totalRows === selectedRows) {
+            checkAllBtn.checked = true;
+            checkAllBtn.indeterminate = false;
+        } else if (selectedRows > 0) {
+            checkAllBtn.checked = false;
+            checkAllBtn.indeterminate = true; // Kondisi setengah centang
+        } else {
+            checkAllBtn.checked = false;
+            checkAllBtn.indeterminate = false;
+        }
     }
 
     function recalculateTotal1() {
@@ -601,7 +662,8 @@ tr.selected-row td { background-color: #f0f9ff; }
                 const idx = parseInt(e.currentTarget.dataset.index);
                 if (data2[idx] && data2[idx].sourceIndex !== undefined) selectedIndexes.delete(data2[idx].sourceIndex);
                 data2.splice(idx, 1);
-                render2(data2); 
+                render2(data2);
+                updateCheckAllState(); // Update header checkbox jika data di Tab 2 dihapus
             });
         });
         totalQty2.innerText = total.toLocaleString('id-ID');
@@ -622,12 +684,11 @@ tr.selected-row td { background-color: #f0f9ff; }
         }));
 
         const grandTotal = data2.reduce((acc, r) => acc + (parseFloat(r["Qty Transaksi"]) || 0), 0);
-        dataToExport.push({ "No": "", "Catatan": "", "Part": "TOTAL", "Qty Transaksi": grandTotal, "Part Demand": "", "Serial Number": "", "Teknisi Perbaikan": "" });
+        dataToExport.push({ "No": "", "Catatan": "", "Part": "", "Qty Transaksi": "", "Part Demand": "", "Serial Number": "", "Teknisi Perbaikan": "" });
+        dataToExport.push({ "No": "", "Catatan": "", "Part": "TOTAL QTY", "Qty Transaksi": grandTotal, "Part Demand": "", "Serial Number": "", "Teknisi Perbaikan": "" });
 
-        // Tambahkan keterangan manual ke Excel
         const notes = document.querySelectorAll('.note-input');
-        let emptyRow = { "No": "", "Catatan": "", "Part": "", "Qty Transaksi": "", "Part Demand": "", "Serial Number": "", "Teknisi Perbaikan": "" };
-        dataToExport.push(emptyRow);
+        dataToExport.push({ "No": "", "Catatan": "", "Part": "", "Qty Transaksi": "", "Part Demand": "", "Serial Number": "", "Teknisi Perbaikan": "" });
         dataToExport.push({ "No": "Keterangan:", "Catatan": "", "Part": "", "Qty Transaksi": "", "Part Demand": "", "Serial Number": "", "Teknisi Perbaikan": "" });
         
         notes.forEach((note, index) => {
@@ -642,7 +703,7 @@ tr.selected-row td { background-color: #f0f9ff; }
         XLSX.writeFile(wb, "sparepart_data.xlsx");
     };
 
-    // --- DOWNLOAD PDF ---
+    // --- DOWNLOAD PDF (TOTAL DI LUAR TABEL) ---
     document.getElementById("pdf").onclick = () => {
         if (data2.length === 0) return alert("Tidak ada data untuk diunduh.");
 
@@ -653,13 +714,10 @@ tr.selected-row td { background-color: #f0f9ff; }
             r["No_Urut"] || (i+1),
             r["Catatan"], r["Part"], r["Qty Transaksi"], r["Part Demand"], r["Serial Number"], r["Teknisi Perbaikan"]
         ]);
-        
-        const grandTotal = data2.reduce((acc, r) => acc + (parseFloat(r["Qty Transaksi"]) || 0), 0);
-        rows.push(["", "", "TOTAL", grandTotal, "", "", ""]);
 
         doc.setFontSize(18);
         doc.setTextColor(40);
-        doc.text("Data Sparepart Bekas - KUPANG", 14, 20);
+        doc.text("Laporan Data Sparepart", 14, 20);
         
         doc.autoTable({
             head: [col],
@@ -669,17 +727,21 @@ tr.selected-row td { background-color: #f0f9ff; }
             styles: { font: "helvetica", fontStyle: "bold", fontSize: 6, lineColor: 0, lineWidth: 0.5, textColor: 0, cellWidth: 'wrap' },
             headStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: "bold", lineColor: 0, lineWidth: 0.5, halign: 'center' },
             columnStyles: { 0: { halign: 'center' }, 3: { halign: 'center' } },
-            didParseCell: function (data) {
-                if (data.row.index === rows.length) {
-                    data.cell.styles.fillColor = [240, 240, 240];
-                    data.cell.styles.fontStyle = "bold";
-                    if(data.column.index === 3) data.cell.styles.halign = 'center';
-                }
-            },
             theme: "grid"
         });
 
-        // TAMBAHKAN KETERANGAN MANUAL KE PDF
+        const grandTotal = data2.reduce((acc, r) => acc + (parseFloat(r["Qty Transaksi"]) || 0), 0);
+        
+        let finalY = doc.lastAutoTable.finalY;
+        const labelX = 65; 
+        const valueX = 95; 
+        
+        doc.setFontSize(8);
+        doc.setTextColor(0);
+        doc.text("TOTAL QTY:", labelX, finalY + 5);
+        doc.setTextColor(22, 163, 74);
+        doc.text(grandTotal.toLocaleString('id-ID'), valueX, finalY + 5, { align: 'left' });
+
         const notes = document.querySelectorAll('.note-input');
         let hasNotes = false;
         let notesContent = [];
@@ -691,14 +753,21 @@ tr.selected-row td { background-color: #f0f9ff; }
         });
 
         if (hasNotes) {
-            let finalY = doc.lastAutoTable.finalY + 10; // Posisi setelah tabel utama
-            doc.setFontSize(10);
-            doc.text("Keterangan Tambahan:", 14, finalY);
+            let currentY = finalY + 15;
             
-            doc.setFontSize(8); // Ukuran font lebih kecil untuk keterangan
+            doc.setTextColor(100);
+            doc.setFontSize(10);
+            doc.text("Keterangan Tambahan:", 14, currentY);
+            
+            doc.setFontSize(8);
+            doc.setTextColor(50);
             notesContent.forEach((text, idx) => {
-                finalY += 5; // Spasi antar baris keterangan
-                doc.text(text, 14, finalY);
+                currentY += 5;
+                if (currentY > 280) {
+                    doc.addPage();
+                    currentY = 20;
+                }
+                doc.text(text, 14, currentY);
             });
         }
 
