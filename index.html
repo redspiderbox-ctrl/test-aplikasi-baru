@@ -43,11 +43,11 @@ button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .badge { background: var(--primary-light); color: var(--primary); font-weight: 700; padding: 2px 9px; border-radius: 20px; font-size: 11px; }
 input[type="text"], select { display: block; font-size: 13px; font-family: inherit; border: 1px solid var(--border-color); border-radius: 8px; transition: border-color 0.2s, box-shadow 0.2s; background: var(--card-bg); color: var(--text-main); }
 input[type="text"] { width: 100%; padding: 10px 14px 10px 38px; margin-bottom: 16px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 13px center; }
-select { padding: 10px 14px; margin-bottom: 16px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; font-weight: 500; }
+select { padding: 10px 14px; margin-bottom: 16px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; font-weight: 500; }
 input[type="text"]:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 input[type="text"]::placeholder { color: var(--border-light); }
-.filter-row { display: flex; gap: 12px; margin-bottom: 16px; }
-.filter-row > * { flex: 1; min-width: 0; }
+.filter-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px; }
+.dropdown-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .file-upload-wrapper { position: relative; margin-bottom: 16px; }
 .file-upload-wrapper input[type="file"] { display: block; width: 100%; padding: 22px 16px; font-size: 13px; font-family: inherit; cursor: pointer; background: var(--hover-bg); border: 2px dashed var(--border-light); border-radius: 10px; transition: border-color 0.2s, background 0.2s; color: var(--text-muted); }
 .file-upload-wrapper input[type="file"]::file-selector-button { padding: 8px 18px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-weight: 600; font-size: 12px; cursor: pointer; margin-right: 14px; transition: background 0.15s, border-color 0.15s; font-family: inherit; }
@@ -92,7 +92,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
 .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
 .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; display: block; }
 .empty-state p { font-size: 13px; margin: 0; }
-@media (max-width: 768px) { body { padding: 12px; } .header-content { gap: 12px; } .header-icon { width: 48px; height: 48px; font-size: 22px; } .header-text h3 { font-size: 18px; } .tab-content { padding: 14px; } .tab-button { padding: 9px 14px; font-size: 12px; gap: 6px; } .btn-group { gap: 6px; } button { padding: 8px 12px; font-size: 12px; } .btn-group-info { display: none; } .toast-container { left: 12px; right: 12px; bottom: 12px; } .toast { max-width: 100%; } .filter-row { flex-direction: column; } }
+@media (max-width: 768px) { body { padding: 12px; } .header-content { gap: 12px; } .header-icon { width: 48px; height: 48px; font-size: 22px; } .header-text h3 { font-size: 18px; } .tab-content { padding: 14px; } .tab-button { padding: 9px 14px; font-size: 12px; gap: 6px; } .btn-group { gap: 6px; } button { padding: 8px 12px; font-size: 12px; } .btn-group-info { display: none; } .toast-container { left: 12px; right: 12px; bottom: 12px; } .toast { max-width: 100%; } .dropdown-group { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 </style>
 </head>
@@ -125,13 +125,17 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" aria-label="Upload file Excel atau CSV">
             </div>
             
-            <!-- AREA FILTER GANDA -->
-            <div class="filter-row">
+            <!-- AREA FILTER -->
+            <div class="filter-grid">
                 <input type="text" id="search1" placeholder="Cari nomor part, serial, catatan...">
-                <label for="filterTeknisi" class="sr-only">Filter berdasarkan Teknisi</label>
-                <select id="filterTeknisi">
-                    <option value="">Semua Teknisi Perbaikan</option>
-                </select>
+                <div class="dropdown-group">
+                    <label for="filterTeknisi" class="sr-only">Filter Teknisi</label>
+                    <select id="filterTeknisi"><option value="">Semua Teknisi</option></select>
+                    <label for="filterReturn" class="sr-only">Filter Return</label>
+                    <select id="filterReturn"><option value="">Semua Return</option></select>
+                    <label for="filterClaim" class="sr-only">Filter Claim</label>
+                    <select id="filterClaim"><option value="">Semua Claim</option></select>
+                </div>
             </div>
 
             <div class="table-container">
@@ -197,15 +201,14 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     "use strict";
     const { jsPDF } = window.jspdf;
 
-    // ========== STATE ==========
     let data1 = [], selectedIndexes = new Set(), data2 = [], data3 = [];
-    let currentFilter1 = "", currentFilter2 = "", currentFilter3 = "", filterTeknisiVal = "";
+    let currentFilter1 = "", currentFilter2 = "", currentFilter3 = "", 
+        filterTeknisiVal = "", filterReturnVal = "", filterClaimVal = "";
     let idxMapTab1 = new Map(), idxMapTab2 = new Map(), idxMapTab3 = new Map(); 
 
-    // ========== DOM ==========
     const $ = s => document.querySelector(s), $$ = s => document.querySelectorAll(s);
     const fileInput = $("#fileInput"), search1 = $("#search1"), search2 = $("#search2"), search3 = $("#search3");
-    const filterTeknisi = $("#filterTeknisi"); // DOM Dropdown Filter Teknisi
+    const filterTeknisi = $("#filterTeknisi"), filterReturn = $("#filterReturn"), filterClaim = $("#filterClaim");
     const addRowBtn = $("#addRowBtn"), addRowBtn3 = $("#addRowBtn3"), resetBtn = $("#resetBtn"), checkAllCb = $("#checkAll");
     const tbody1 = $("#tbody1"), tbody2 = $("#tbody2"), tbody3 = $("#tbody3");
     const totalQty1El = $("#totalQty1"), totalQty2El = $("#totalQty2"), totalQty3aEl = $("#totalQty3a");
@@ -215,20 +218,12 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     const KEYS_TAB2 = ["No_Urut","Catatan","Part","Qty Transaksi","Part Demand","Serial Number","Teknisi Perbaikan"];
     const KEYS_TAB3 = ["No_Urut","Part Demand / Part","Lot","Attribute","QTY / Qty Transaksi","QTY Konversi","UM Konversi","Remarks 1","Remarks 2","Nomor Service Job / Catatan"];
 
-    // ========== UTILITAS ==========
     function extractSjob(t) { if(!t||typeof t!=="string")return""; var i=t.toUpperCase().indexOf("SJOB"); if(i===-1)return""; var m=t.substring(i).match(/^(SJOB[A-Za-z0-9\/\-_.]+)/i); return m?m[0]:""; }
-    function esc(s) { return typeof s!=="string"?s:s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
     function calcTotal(a, k) { var s=0; for(var i=0;i<a.length;i++) s+=parseFloat(a[i][k])||0; return s; }
     function debounce(fn, d) { var t; return function(){ clearTimeout(t); t=setTimeout(fn, d); }; }
 
-    function showToast(msg, type) {
-        const ic = { success:"fa-check-circle", danger:"fa-exclamation-circle", info:"fa-info-circle" };
-        const t = document.createElement("div"); t.className = "toast toast-"+type;
-        t.innerHTML = '<i class="fas '+(ic[type]||ic.info)+'"></i><span>'+msg+'</span>';
-        toastContainer.appendChild(t); setTimeout(()=>{ if(t.parentNode) t.remove(); }, 3200);
-    }
+    function showToast(msg, type) { const ic = { success:"fa-check-circle", danger:"fa-exclamation-circle", info:"fa-info-circle" }; const t = document.createElement("div"); t.className = "toast toast-"+type; t.innerHTML = '<i class="fas '+(ic[type]||ic.info)+'"></i><span>'+msg+'</span>'; toastContainer.appendChild(t); setTimeout(()=>{ if(t.parentNode) t.remove(); }, 3200); }
 
-    // Event Delegasi Keyboard (Enter)
     document.addEventListener("keydown", function(e) {
         if (e.key === "Enter" && e.target.hasAttribute("contenteditable")) {
             e.preventDefault(); e.target.blur();
@@ -238,32 +233,25 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         }
     });
 
-    // ========== NAVIGASI TAB ==========
-    $$(".tab-button").forEach(btn => {
-        btn.addEventListener("click", function() {
-            $$(".tab-button").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
-            $$(".tab-content").forEach(c => c.classList.remove("active"));
-            btn.classList.add("active"); btn.setAttribute("aria-selected","true");
-            $("#" + btn.dataset.tab).classList.add("active");
-        });
-    });
+    $$(".tab-button").forEach(btn => { btn.addEventListener("click", function() { $$(".tab-button").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected","false"); }); $$(".tab-content").forEach(c => c.classList.remove("active")); btn.classList.add("active"); btn.setAttribute("aria-selected","true"); $("#" + btn.dataset.tab).classList.add("active"); }); });
 
-    // ========== RESET ==========
     resetBtn.addEventListener("click", function() {
         if (!confirm("Apakah Anda yakin ingin mereset semua data?")) return;
         data1=[]; data2=[]; data3=[]; selectedIndexes.clear(); idxMapTab1.clear(); idxMapTab2.clear(); idxMapTab3.clear();
-        currentFilter1=""; currentFilter2=""; currentFilter3=""; filterTeknisiVal="";
+        currentFilter1=""; currentFilter2=""; currentFilter3=""; filterTeknisiVal=""; filterReturnVal=""; filterClaimVal="";
         tbody1.innerHTML=""; tbody2.innerHTML=""; tbody3.innerHTML="";
         totalQty1El.textContent="0"; totalQty2El.textContent="0"; totalQty3aEl.textContent="0";
-        fileInput.value=""; search1.value=""; search2.value=""; search3.value=""; filterTeknisi.value="";
-        filterTeknisi.innerHTML = '<option value="">Semua Teknisi Perbaikan</option>'; // Reset Dropdown
+        fileInput.value=""; search1.value=""; search2.value=""; search3.value="";
+        filterTeknisi.value=""; filterReturn.value=""; filterClaim.value="";
+        filterTeknisi.innerHTML='<option value="">Semua Teknisi</option>';
+        filterReturn.innerHTML='<option value="">Semua Return</option>';
+        filterClaim.innerHTML='<option value="">Semua Claim</option>';
         checkAllCb.checked=false; checkAllCb.indeterminate=false;
         countBadge.textContent="0"; selectedBadge.textContent="0"; demandBadge.textContent="0";
         $$(".note-input").forEach(el => el.innerText="");
         showToast("Semua data berhasil direset.", "info");
     });
 
-    // ========== UPLOAD FILE ==========
     fileInput.addEventListener("change", function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
@@ -273,10 +261,12 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 var parsed = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
                 if (!parsed.length) { showToast("File kosong atau format tidak dikenali.", "danger"); return; }
                 data1 = parsed; selectedIndexes.clear(); idxMapTab1.clear();
-                checkAllCb.checked=false; checkAllCb.indeterminate=false; currentFilter1=""; search1.value=""; filterTeknisiVal=""; filterTeknisi.value="";
+                checkAllCb.checked=false; checkAllCb.indeterminate=false; currentFilter1=""; search1.value=""; filterTeknisiVal=""; filterReturnVal=""; filterClaimVal=""; filterTeknisi.value=""; filterReturn.value=""; filterClaim.value="";
                 
-                // EKSTRAK NAMA TEKNISI UNIK UNTUK DIISIKAN KE DROPDOWN
-                populateTeknisiDropdown(data1);
+                // Isi semua dropdown sekaligus
+                populateDropdown(filterTeknisi, data1, "Teknisi Perbaikan", "Semua Teknisi");
+                populateDropdown(filterReturn, data1, "Return To Factory", "Semua Return");
+                populateDropdown(filterClaim, data1, "Claim To Factory", "Semua Claim");
                 
                 renderTable1(); syncToTab2(); syncToTab3();
                 showToast(parsed.length + " baris data berhasil diimpor.", "success");
@@ -285,66 +275,50 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         reader.readAsArrayBuffer(file);
     });
 
-    // ========== FUNGSI ISI DROPDOWN TEKNISI ==========
-    function populateTeknisiDropdown(arr) {
-        var teknisiSet = new Set();
+    // ========== FUNGSI UMUM ISI DROPDOWN ==========
+    function populateDropdown(selElem, arr, key, defaultText) {
+        var uniqueSet = new Set();
         for (var i = 0; i < arr.length; i++) {
-            var t = arr[i]["Teknisi Perbaikan"];
-            if (t && String(t).trim() !== "") {
-                teknisiSet.add(String(t).trim());
-            }
+            var val = arr[i][key];
+            if (val && String(val).trim() !== "") uniqueSet.add(String(val).trim());
         }
-        
-        var sortedArr = Array.from(teknisiSet).sort();
-        filterTeknisi.innerHTML = '<option value="">Semua Teknisi Perbaikan</option>';
-        
+        var sortedArr = Array.from(uniqueSet).sort();
+        selElem.innerHTML = '<option value="">' + defaultText + '</option>';
         for (var j = 0; j < sortedArr.length; j++) {
-            var opt = document.createElement("option");
-            opt.value = sortedArr[j];
-            opt.textContent = sortedArr[j];
-            filterTeknisi.appendChild(opt);
+            var opt = document.createElement("option"); opt.value = sortedArr[j]; opt.textContent = sortedArr[j];
+            selElem.appendChild(opt);
         }
     }
 
-    // ========== CHECKALL ==========
     checkAllCb.addEventListener("change", function() {
         var isC = checkAllCb.checked;
         getFilteredData1().forEach(item => { if(isC) selectedIndexes.add(item._origIdx); else selectedIndexes.delete(item._origIdx); });
-        tbody1.querySelectorAll("input[type='checkbox']").forEach(cb => {
-            var idx = parseInt(cb.dataset.idx); cb.checked = selectedIndexes.has(idx);
-            var row = cb.closest("tr"); if(cb.checked) row.classList.add("selected-row"); else row.classList.remove("selected-row");
-        });
+        tbody1.querySelectorAll("input[type='checkbox']").forEach(cb => { var idx=parseInt(cb.dataset.idx); cb.checked=selectedIndexes.has(idx); var row=cb.closest("tr"); if(cb.checked)row.classList.add("selected-row");else row.classList.remove("selected-row"); });
         syncToTab2(); syncToTab3();
     });
 
-    // ========== PENCARIAN & FILTER TEKNISI (DEBOUNCE) ==========
     search1.addEventListener("input", debounce(function() { currentFilter1 = search1.value.toLowerCase(); renderTable1(); }, 300));
-    filterTeknisi.addEventListener("change", function() {
-        filterTeknisiVal = filterTeknisi.value.toLowerCase(); // Simpan value yang dipilih
-        renderTable1();
-    });
+    filterTeknisi.addEventListener("change", function() { filterTeknisiVal = filterTeknisi.value.toLowerCase(); renderTable1(); });
+    filterReturn.addEventListener("change", function() { filterReturnVal = filterReturn.value.toLowerCase(); renderTable1(); });
+    filterClaim.addEventListener("change", function() { filterClaimVal = filterClaim.value.toLowerCase(); renderTable1(); });
     search2.addEventListener("input", debounce(function() { currentFilter2 = search2.value.toLowerCase(); renderTable2(); }, 300));
     search3.addEventListener("input", debounce(function() { currentFilter3 = search3.value.toLowerCase(); renderTable3(); }, 300));
 
-    // ========== TAMBAH BARIS ==========
     addRowBtn.addEventListener("click", function() { data2.push({ "No_Urut":data2.length+1, "Catatan":"", "Part":"", "Qty Transaksi":"", "Part Demand":"", "Serial Number":"", "Teknisi Perbaikan":"", _isNew:true }); renderTable2(); showToast("Baris baru ditambahkan.", "success"); });
     addRowBtn3.addEventListener("click", function() { data3.push({ "No_Urut":data3.length+1, "Part Demand / Part":"", "Lot":"", "Attribute":"", "QTY / Qty Transaksi":"", "QTY Konversi":"", "UM Konversi":"", "Remarks 1":"", "Remarks 2":"", "Nomor Service Job / Catatan":"", _isNew:true }); renderTable3(); showToast("Baris demand baru ditambahkan.", "success"); });
 
-    // ========== FILTER CEPAT (LOGIKA GANDA TEKNISI + TEKS) ==========
+    // ========== FILTER GANDA (LOGIKA AND) ==========
     function getFilteredData1() {
-        var f = currentFilter1, ft = filterTeknisiVal, res = [];
+        var f = currentFilter1, ft = filterTeknisiVal, fr = filterReturnVal, fc = filterClaimVal, res = [];
         for(var i=0; i<data1.length; i++) {
-            if(!f && !ft) { res.push(Object.assign({}, data1[i], {_origIdx:i})); continue; }
-            var row=data1[i], mText=false, mTek=false;
-            
-            // Cek Filter Teks Umum
+            if(!f && !ft && !fr && !fc) { res.push(Object.assign({}, data1[i], {_origIdx:i})); continue; }
+            var row=data1[i}, mText=false, mTek=false, mRet=false, mClm=false;
             if(f) { for(var k in row) { if(String(row[k]).toLowerCase().indexOf(f)!==-1) { mText=true; break; } } }
+            if(ft) mTek = String(row["Teknisi Perbaikan"]).toLowerCase().trim() === ft;
+            if(fr) mRet = String(row["Return To Factory"]).toLowerCase().trim() === fr;
+            if(fc) mClm = String(row["Claim To Factory"]).toLowerCase().trim() === fc;
             
-            // Cek Filter Teknisi Spesifik
-            if(ft) { mTek = String(row["Teknisi Perbaikan"]).toLowerCase().trim() === ft; }
-            
-            // Gabungkan logika: (Teks cocok ATAU tidak ada filter teks) DAN (Teknisi cocok ATAU tidak ada filter teknisi)
-            if((mText || !f) && (mTek || !ft)) {
+            if((mText || !f) && (mTek || !ft) && (mRet || !fr) && (mClm || !fc)) {
                 res.push(Object.assign({}, row, {_origIdx:i}));
             }
         } return res;
@@ -352,7 +326,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     function getFiltered(arr, f) { if(!f) return arr; return arr.filter(row => { for(var k in row) { if(k.charAt(0)==="_") continue; if(String(row[k]).toLowerCase().indexOf(f)!==-1) return true; } return false; }); }
     function updateCheckAllState() { var fil=getFilteredData1(), t=fil.length, c=0; fil.forEach(i => { if(selectedIndexes.has(i._origIdx)) c++; }); checkAllCb.checked = (t>0 && c===t); checkAllCb.indeterminate = (c>0 && c<t); }
 
-    // ========== RENDER TABEL 1 (OPTIMASI FRAGMENT) ==========
+    // ========== RENDER TABEL 1 ==========
     function renderTable1() {
         var frag = document.createDocumentFragment(), filtered = getFilteredData1(), total = 0;
         if (!filtered.length && !data1.length) { var tr=document.createElement("tr"); tr.innerHTML = '<td colspan="10"><div class="empty-state"><i class="fas fa-file-upload"></i><p>Belum ada data. Upload file Excel atau CSV untuk memulai.</p></div></td>'; frag.appendChild(tr); }
@@ -361,9 +335,25 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         tbody1.innerHTML=""; tbody1.appendChild(frag); totalQty1El.textContent=total.toLocaleString("id-ID"); countBadge.textContent=data1.length; updateCheckAllState();
     }
 
-    // Event Delegasi Tab 1
     tbody1.addEventListener("change", function(e) { if(e.target.type==="checkbox"){ var idx=parseInt(e.target.dataset.idx),tr=e.target.closest("tr"); if(e.target.checked){selectedIndexes.add(idx);tr.classList.add("selected-row");}else{selectedIndexes.delete(idx);tr.classList.remove("selected-row");} updateCheckAllState();syncToTab2();syncToTab3(); } });
-    tbody1.addEventListener("focusout", function(e) { if(e.target.hasAttribute("contenteditable")){ var idx=parseInt(e.target.dataset.idx),key=e.target.dataset.key; if(data1[idx]!==undefined){ data1[idx][key]=e.target.textContent; if(key==="Qty Transaksi"){totalQty1El.textContent=calcTotal(data1,"Qty Transaksi").toLocaleString("id-ID");if(selectedIndexes.has(idx)){syncToTab2();syncToTab3();}} if(key==="Catatan"&&selectedIndexes.has(idx)){syncToTab2();syncToTab3();} if(key==="Teknisi Perbaikan"){populateTeknisiDropdown(data1); if(selectedIndexes.has(idx)){syncToTab2();}} } } });
+    tbody1.addEventListener("focusout", function(e) { 
+        if(e.target.hasAttribute("contenteditable")){
+            var idx=parseInt(e.target.dataset.idx),key=e.target.dataset.key; 
+            if (data1[idx] !== undefined) {
+                var oldVal = data1[idx][key];
+                var newVal = e.target.textContent;
+                data1[idx][key] = newVal; 
+                if(key==="Qty Transaksi"){totalQty1El.textContent=calcTotal(data1,"Qty Transaksi").toLocaleString("id-ID");if(selectedIndexes.has(idx)){syncToTab2();syncToTab3();}}
+                if(key==="Catatan"&&selectedIndexes.has(idx)){syncToTab2();syncToTab3();}
+                // Update dropdowns jika kolom relevan diedit manual
+                if(oldVal !== newVal) {
+                    if(key==="Teknisi Perbaikan") populateDropdown(filterTeknisi, data1, "Teknisi Perbaikan", "Semua Teknisi");
+                    if(key==="Return To Factory") populateDropdown(filterReturn, data1, "Return To Factory", "Semua Return");
+                    if(key==="Claim To Factory") populateDropdown(filterClaim, data1, "Claim To Factory", "Semua Claim");
+                }
+            }
+        } 
+    });
 
     // ========== SINKRONISASI ==========
     function syncToTab2() { var fromTab1=[]; selectedIndexes.forEach(idx=>{if(data1[idx]){var r=Object.assign({},data1[idx],{_sourceIdx:idx,_isNew:false});r["No_Urut"]=fromTab1.length+1;fromTab1.push(r);}}); var manual=data2.filter(r=>r._isNew); data2=fromTab1.concat(manual); selectedBadge.textContent=data2.length; rebuildIdxMap(data2,idxMapTab2); renderTable2(); }
@@ -381,7 +371,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
 
     // ========== EXPORTS ==========
     $("#excelBtn").addEventListener("click", function() { if(!data2.length){showToast("Tidak ada data.","danger");return;}var exp=[],gt=calcTotal(data2,"Qty Transaksi");for(var i=0;i<data2.length;i++){var r=data2[i];exp.push({"No":r["No_Urut"]||(i+1),"Catatan":r["Catatan"]||"","Part":r["Part"]||"","Qty Transaksi":r["Qty Transaksi"]||"","Part Demand":r["Part Demand"]||"","Serial Number":r["Serial Number"]||"","Teknisi Perbaikan":r["Teknisi Perbaikan"]||""});}exp.push({"No":"","Catatan":"","Part":"TOTAL QTY","Qty Transaksi":gt,"Part Demand":"","Serial Number":"","Teknisi Perbaikan":""});appendNotes(exp);var ws=XLSX.utils.json_to_sheet(exp);ws["!cols"]=[{wch:6},{wch:30},{wch:35},{wch:14},{wch:14},{wch:25},{wch:25}];var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Data Sparepart");XLSX.writeFile(wb,"sparepart_data.xlsx");showToast("File Excel berhasil diunduh.","success"); });
-    $("#pdfBtn").addEventListener("click", function() { if(!data2.length){showToast("Tidak ada data.","danger");return;}var doc=new jsPDF({orientation:"p",unit:"mm",format:"a4"}),pw=doc.internal.pageSize.getWidth(),mg={left:8,right:8},uw=pw-mg.left-mg.right,col=["No","Catatan","Part","Qty","Demand","Serial","Teknisi"],rows=[];for(var i=0;i<data2.length;i++){var r=data2[i];rows.push([String(r["No_Urut"]||(i+1)),String(r["Catatan"]||""),String(r["Part"]||""),String(r["Qty Transaksi"]||""),String(r["Part Demand"]||""),String(r["Serial Number"]||""),String(r["Teknisi Perbaikan"]||"")]);}doc.setFontSize(16);doc.setTextColor(30,41,59);doc.text("Laporan Data Sparepart",mg.left,18);doc.setFontSize(8);doc.setTextColor(100,116,139);doc.text("Dicetak: "+new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}),mg.left,24);doc.autoTable({head:[col],body:rows,startY:28,margin:mg,styles:{font:"helvetica",fontStyle:"normal",fontSize:7,lineColor:[226,232,240],lineWidth:0.3,textColor:[51,65,85],cellPadding:2.5,overflow:"linebreak"},headStyles:{fillColor:[248,250,252],textColor:[30,41,59],fontStyle:"bold",fontSize:7.5,lineColor:[203,213,225],lineWidth:0.4,halign:"center",valign:"middle"},tableWidth:"auto",columnStyles:{0:{halign:"center",cellWidth:8},3:{halign:"center",cellWidth:10},4:{halign:"left",cellWidth:"auto"}},alternateRowStyles:{fillColor:[248,250,252]},theme:"grid"});var fy=doc.lastAutoTable.finalY,gt=calcTotal(data2,"Qty Transaksi");doc.setFontSize(9);doc.setTextColor(30,41,59);doc.setFont(undefined,"bold");doc.text("TOTAL QTY:",uw-35,fy+7,{align:"right"});doc.setTextColor(5,150,105);doc.text(String(gt),uw-8,fy+7,{align:"right"});appendNotesPDF(doc,fy);doc.save("sparepart_report.pdf");showToast("File PDF berhasil diunduh.","success"); });
+    $("#pdfBtn").addEventListener("click", function() { if(!data2.length){showToast("Tidak ada data.","danger");return;}var doc=new jsPDF({orientation:"p",unit:"mm",format:"a4"}),pw=doc.internal.pageSize.getWidth(),mg={left:8,right:8},uw=pw-mg.left-mg.right,col=["No","Catatan","Part","Qty","Demand","Serial","Teknisi"],rows=[];for(var i=0;i<data2.length;i++){var r=data2[i];rows.push([String(r["No_Urut"]||(i+1),String(r["Catatan"]||""),String(r["Part"]||""),String(r["Qty Transaksi"]||""),String(r["Part Demand"]||""),String(r["Serial Number"]||""),String(r["Teknisi Perbaikan"]||"")]);}doc.setFontSize(16);doc.setTextColor(30,41,59);doc.text("Laporan Data Sparepart",mg.left,18);doc.setFontSize(8);doc.setTextColor(100,116,139);doc.text("Dicetak: "+new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}),mg.left,24);doc.autoTable({head:[col],body:rows,startY:28,margin:mg,styles:{font:"helvetica",fontStyle:"normal",fontSize:7,lineColor:[226,232,240],lineWidth:0.3,textColor:[51,65,85],cellPadding:2.5,overflow:"linebreak"},headStyles:{fillColor:[248,250,252],textColor:[30,41,59],fontStyle:"bold",fontSize:7.5,lineColor:[203,213,225],lineWidth:0.4,halign:"center",valign:"middle"},tableWidth:"auto",columnStyles:{0:{halign:"center",cellWidth:8},3:{halign:"center",cellWidth:10},4:{halign:"left",cellWidth:"auto"}},alternateRowStyles:{fillColor:[248,250,252]},theme:"grid"});var fy=doc.lastAutoTable.finalY,gt=calcTotal(data2,"Qty Transaksi");doc.setFontSize(9);doc.setTextColor(30,41,59);doc.setFont(undefined,"bold");doc.text("TOTAL QTY:",uw-35,fy+7,{align:"right"});doc.setTextColor(5,150,105);doc.text(String(gt),uw-8,fy+7,{align:"right"});appendNotesPDF(doc,fy);doc.save("sparepart_report.pdf");showToast("File PDF berhasil diunduh.","success"); });
     $("#excelBtn3").addEventListener("click", function() { if(!data3.length){showToast("Tidak ada data.","danger");return;}var exp=[];for(var i=0;i<data3.length;i++){var r=data3[i];exp.push({"Part Demand":r["Part Demand / Part"]||"","Lot":r["Lot"]||"","Attribute":r["Attribute"]||"","QTY":r["QTY / Qty Transaksi"]||"","QTY Konversi":r["QTY Konversi"]||"","UM Konversi":r["UM Konversi"]||"","Remarks 1":r["Remarks 1"]||"","Remarks 2":r["Remarks 2"]||"","Nomor Service Job":r["Nomor Service Job / Catatan"]||""});}var ws=XLSX.utils.json_to_sheet(exp);ws["!cols"]=[{wch:35},{wch:18},{wch:18},{wch:14},{wch:18},{wch:16},{wch:20},{wch:20},{wch:30}];var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Part Demand");XLSX.writeFile(wb,"part_demand_data.xlsx");showToast("File Excel berhasil diunduh.","success"); });
     $("#pdfBtn3").addEventListener("click", function() { if(!data3.length){showToast("Tidak ada data.","danger");return;}var doc=new jsPDF({orientation:"l",unit:"mm",format:"a4"}),pw=doc.internal.pageSize.getWidth(),mg={left:8,right:8},uw=pw-mg.left-mg.right,col=["No","Part Demand / Part","Lot","Attribute","QTY","QTY Konv.","UM Konv.","Remarks 1","Remarks 2","No. Svc Job"],rows=[];for(var i=0;i<data3.length;i++){var r=data3[i];rows.push([String(r["No_Urut"]||(i+1)),String(r["Part Demand / Part"]||""),String(r["Lot"]||""),String(r["Attribute"]||""),String(r["QTY / Qty Transaksi"]||""),String(r["QTY Konversi"]||""),String(r["UM Konversi"]||""),String(r["Remarks 1"]||""),String(r["Remarks 2"]||""),String(r["Nomor Service Job / Catatan"]||"")]);}doc.setFontSize(16);doc.setTextColor(30,41,59);doc.text("Laporan Part Demand",mg.left,16);doc.setFontSize(8);doc.setTextColor(100,116,139);doc.text("Dicetak: "+new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}),mg.left,22);doc.autoTable({head:[col],body:rows,startY:26,margin:mg,styles:{font:"helvetica",fontStyle:"normal",fontSize:6.5,lineColor:[226,232,240],lineWidth:0.3,textColor:[51,65,85],cellPadding:2.5,overflow:"linebreak"},headStyles:{fillColor:[248,250,252],textColor:[30,41,59],fontStyle:"bold",fontSize:7,lineColor:[203,213,225],lineWidth:0.4,halign:"center",valign:"middle"},columnStyles:{0:{halign:"center",cellWidth:8},4:{halign:"center",cellWidth:14},5:{halign:"center",cellWidth:14}},alternateRowStyles:{fillColor:[248,250,252]},theme:"grid"});var fy=doc.lastAutoTable.finalY,gtA=calcTotal(data3,"QTY / Qty Transaksi"),gtB=calcTotal(data3,"QTY Konversi");doc.setFontSize(8);doc.setTextColor(30,41,59);doc.setFont(undefined,"bold");doc.text("TOTAL QTY:",uw-80,fy+7,{align:"right"});doc.setTextColor(5,150,105);doc.text(String(gtA),uw-60,fy+7,{align:"left"});doc.setTextColor(30,41,59);doc.text("TOTAL KONV.:",uw-30,fy+7,{align:"right"});doc.setTextColor(37,99,235);doc.text(String(gtB),uw-10,fy+7,{align:"left"});doc.save("part_demand_report.pdf");showToast("File PDF Part Demand berhasil diunduh.","success"); });
 
