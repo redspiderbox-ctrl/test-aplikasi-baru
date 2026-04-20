@@ -540,7 +540,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         var ws = XLSX.utils.aoa_to_sheet(wsData);
         ws["!cols"]=[{wch:6},{wch:30},{wch:30},{wch:14},{wch:14},{wch:25},{wch:25}];
         XLSX.utils.book_append_sheet(wb,ws,"Surat Jalan");
-        XLSX.writeFile(wb,"surat_jalan_stock_opname.xlsx");
+        XLSX.writeFile(wb,"Surat Jalan Part Bekas.xlsx");
         showToast("File Excel berhasil diunduh.","success"); 
     });
 
@@ -623,7 +623,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         doc.line(x3-20, lineY, x3+20, lineY);
         doc.line(x4-20, lineY, x4+20, lineY);
         
-        doc.save("surat_jalan_stock_opname.pdf"); 
+        doc.save("Surat Jalan Part Bekas.pdf"); 
         showToast("File PDF berhasil diunduh.","success"); 
     });
 
