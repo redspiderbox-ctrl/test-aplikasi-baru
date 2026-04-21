@@ -443,7 +443,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     // Render Table 4 (UPDATED: Tanpa Qty Transaksi)
     function renderTable4() { 
         var frag=document.createDocumentFragment(), filtered=getFiltered(data4,currentFilter4), total=0; 
-        // Colspan disesuaikan: 8 kolom (No, Catatan, Part, Reservasi, Demand, Serial, Teknisi, Aksi)
+        // Colspan disesuaikan: 8 kolom (No, Catatan, Part, Qty Rsv, Demand, Serial, Teknisi, Aksi)
         if(!filtered.length && !data4.length){ var tr=document.createElement("tr"); tr.innerHTML='<td colspan="8"><div class="empty-state"><i class="fas fa-boxes"></i><p>Belum ada data stock opname.</p></div></td>'; frag.appendChild(tr); } 
         else if(!filtered.length){ var tr=document.createElement("tr"); tr.innerHTML='<td colspan="8"><div class="empty-state"><i class="fas fa-search"></i><p>Tidak ditemukan.</p></div></td>'; frag.appendChild(tr); } 
         else { 
