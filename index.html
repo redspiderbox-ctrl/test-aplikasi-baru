@@ -548,7 +548,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         if(!data4.length){showToast("Tidak ada data.","danger");return;} 
         var doc=new jsPDF({orientation:"p",unit:"mm",format:"a4"}), pw=doc.internal.pageSize.getWidth(), mg={left:12,right:12};
         // Kolom PDF (Tanpa Qty Transaksi)
-        var col=["No","Catatan","Part","Qty Resv","Demand","Serial","Teknisi"], rows=[]; 
+        var col=["No","Catatan","Part","Qty","Demand","Serial","Teknisi"], rows=[]; 
         
         // Header Surat Jalan
         doc.setFontSize(18); doc.setTextColor(30,41,59); doc.setFont(undefined,"bold");
