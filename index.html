@@ -464,7 +464,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
             </div>
         </section>
 
-        <!-- TAB 5: TAGIHAN RETURN -->
+        <!-- TAB 5: TAGIHAN RETURN (UPDATED) -->
         <section id="tab5" class="tab-content" role="tabpanel">
             <div class="btn-group">
                 <button class="btn-primary" id="excelBtn5" aria-label="Unduh sebagai Excel"><i class="fas fa-file-excel"></i> Download Excel</button>
@@ -476,10 +476,11 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
             <label for="search5" class="sr-only">Cari data di tabel tagihan return</label>
             <input type="text" id="search5" placeholder="Cari data tagihan return...">
             <div class="table-container">
+                <!-- PERUBAHAN: Header Description dipindahkan setelah Part -->
                 <table id="table5"><thead><tr>
-                    <th class="col-no">No. Urut</th><th>Catatan</th><th>Part</th><th>Qty Reservasi</th><th>Part Demand</th><th>Description</th><th>Serial Number</th><th>Teknisi Perbaikan</th><th>Disetujui Pada</th><th>Lamanya Hari</th>
+                    <th class="col-no">No. Urut</th><th>Catatan</th><th>Part</th><th>Description</th><th>Qty Reservasi</th><th>Part Demand</th><th>Serial Number</th><th>Teknisi Perbaikan</th><th>Disetujui Pada</th><th>Lamanya Hari</th>
                 </tr></thead><tbody id="tbody5"></tbody>
-                <tfoot><tr><td colspan="3" class="total-label">Total Qty</td><td id="totalQty5" class="total-value">0</td><td colspan="6"></td></tr></tfoot></table>
+                <tfoot><tr><td colspan="4" class="total-label">Total Qty</td><td id="totalQty5" class="total-value">0</td><td colspan="5"></td></tr></tfoot></table>
             </div>
         </section>
 
@@ -548,7 +549,8 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     const KEYS_TAB2 = ["No_Urut","Catatan","Part","Qty Transaksi","Part Demand","Serial Number","Teknisi Perbaikan"];
     const KEYS_TAB3 = ["No_Urut","Part Demand / Part","Lot","Attribute","QTY / Qty Transaksi","QTY Konversi","UM Konversi","Remarks 1","Remarks 2","Nomor Service Job / Catatan"];
     const KEYS_TAB4 = ["No_Urut","Catatan","Part","Qty Reservasi","Part Demand","Serial Number","Teknisi Perbaikan"];
-    const KEYS_TAB5 = ["No_Urut","Catatan","Part","Qty Reservasi","Part Demand","Description","Serial Number","Teknisi Perbaikan","Disetujui Pada","Lamanya Hari"];
+    // PERUBAHAN: Urutan Keys Tab 5 diubah, Description setelah Part
+    const KEYS_TAB5 = ["No_Urut","Catatan","Part","Description","Qty Reservasi","Part Demand","Serial Number","Teknisi Perbaikan","Disetujui Pada","Lamanya Hari"];
     const KEYS_TAB6 = ["No", "Part Number", "Description", "KETERANGAN"];
 
     // ========== UTILITAS ==========
@@ -568,22 +570,17 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         toastContainer.appendChild(t); setTimeout(()=>{ if(t.parentNode) t.remove(); }, 3200);
     }
 
-    // ========== FUNGSI VLOOKUP (FITUR BARU) ==========
-    // Mencari Description di Tab 6 berdasarkan Part Number
+    // ========== FUNGSI VLOOKUP ==========
     function vlookupDescription(partNumber) {
         if (!partNumber || data6.length === 0) return "";
-        
-        // Normalisasi input (trim dan uppercase untuk pencarian yang lebih akurat)
         var searchKey = String(partNumber).trim().toUpperCase();
-        
-        // Cari di data6 (Master Komponen)
         for (var i = 0; i < data6.length; i++) {
             var masterPart = String(data6[i]["Part Number"] || "").trim().toUpperCase();
             if (masterPart === searchKey) {
-                return data6[i]["Description"] || ""; // Kembalikan description jika ketemu
+                return data6[i]["Description"] || "";
             }
         }
-        return ""; // Kembalikan kosong jika tidak ketemu
+        return "";
     }
 
     function calculateDays(dateStr) {
@@ -678,7 +675,6 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 data6 = mapped; selectedIndexes6.clear();
                 checkAllCb6.checked = false;
                 renderTable6();
-                // Penting: Refresh Tab 5 setelah Master diupdate agar VLOOKUP baru berlaku
                 syncToTab5(); 
                 showToast(parsed.length + " komponen berhasil diimpor. Data Tab 5 diperbarui.", "success");
             } catch (err) { showToast("Gagal membaca file Master: " + err.message, "danger"); }
@@ -792,7 +788,6 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         toDelete.forEach(function(idx) { data6.splice(idx, 1); });
         selectedIndexes6.clear();
         renderTable6();
-        // Refresh Tab 5 karena referensi Master berubah
         syncToTab5(); 
         showToast(toDelete.length + " komponen berhasil dihapus.", "success");
     });
@@ -836,31 +831,36 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     function syncToTab3() { var fromTab1=[]; selectedIndexes.forEach(idx => { if(data1[idx]){ var src=data1[idx]; var t2r=null; for(var i=0; i<data2.length; i++){ if(data2[i]._sourceIdx === idx) { t2r = data2[i]; break; } } var cs=(t2r&&t2r["Catatan"])?t2r["Catatan"]:(src["Catatan"]||""); var r={_sourceIdx:idx,_isNew:false,"Part Demand / Part":(t2r&&t2r["Part"])?t2r["Part"]:(src["Part"]||""),"Lot":"","Attribute":"","QTY / Qty Transaksi":(t2r&&t2r["Qty Transaksi"])?t2r["Qty Transaksi"]:(src["Qty Transaksi"]||""),"QTY Konversi":"","UM Konversi":"","Remarks 1":"","Remarks 2":"","Nomor Service Job / Catatan":extractSjob(cs)}; fromTab1.push(r); } }); var manual=data3.filter(r=>r._isNew); data3=fromTab1.concat(manual); demandBadge.textContent=data3.length; renderTable3(); }
     function syncToTab4() { var fromTab1=[]; selectedIndexes.forEach(idx => { if(data1[idx]){ var r=Object.assign({},data1[idx],{_sourceIdx:idx,_isNew:false}); fromTab1.push(r); } }); var manual=data4.filter(r=>r._isNew); data4=fromTab1.concat(manual); stockBadge.textContent=data4.length; renderTable4(); }
     
-    // PERUBAHAN: syncToTab5 sekarang memanggil fungsi VLOOKUP
+    // Sync To Tab 5 (Updated to match new column order)
     function syncToTab5() { 
         var fromTab1=[]; 
         selectedIndexes.forEach(idx => { 
             if(data1[idx]){ 
                 var src = data1[idx];
                 var days = calculateDays(src["Disetujui Pada"]);
-                
-                // === LOGIKA VLOOKUP ===
-                // Ambil Part dari Tab 1 (sumber data Tab 5)
                 var partCode = src["Part"] || "";
-                // Cari Description di Master (Tab 6)
                 var desc = vlookupDescription(partCode);
 
-                var r=Object.assign({}, src, {
-                    _sourceIdx:idx,
-                    _isNew:false,
+                // Object creation follows KEYS_TAB5 order now
+                var r = {
+                    "No_Urut": "", // Will be indexed in render
+                    "Catatan": src["Catatan"] || "",
+                    "Part": partCode,
+                    "Description": desc, // Moved here
+                    "Qty Reservasi": src["Qty Reservasi"] || "",
+                    "Part Demand": src["Part Demand"] || "",
+                    "Serial Number": src["Serial Number"] || "",
+                    "Teknisi Perbaikan": src["Teknisi Perbaikan"] || "",
+                    "Disetujui Pada": src["Disetujui Pada"] || "",
                     "Lamanya Hari": days,
-                    "Description": desc // Isi dengan hasil VLOOKUP
-                }); 
+                    _sourceIdx: idx,
+                    _isNew: false
+                }; 
                 fromTab1.push(r); 
             } 
         }); 
-        data5=fromTab1; 
-        stockBadge5.textContent=data5.length; 
+        data5 = fromTab1; 
+        stockBadge5.textContent = data5.length; 
         renderTable5(); 
     }
 
@@ -891,6 +891,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 tdN.textContent=fi+1; 
                 tr.appendChild(tdN); 
                 
+                // Loop melalui KEYS_TAB5 yang urutannya sudah diubah
                 for(var ki=1; ki<KEYS_TAB5.length; ki++){ 
                     var key=KEYS_TAB5[ki];
                     var td=document.createElement("td"); 
@@ -978,13 +979,11 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         } 
     });
     
-    // PERUBAHAN: Saat data Master diubah, update Tab 5
     tbody6.addEventListener("focusout", function(e) { 
         if(e.target.hasAttribute("contenteditable")){ 
             var ri=parseInt(e.target.dataset.ridx6), k=e.target.dataset.key; 
             if(data6[ri]!==undefined){ 
                 data6[ri][k]=e.target.textContent; 
-                // Jika kolom Part Number atau Description diubah, refresh Tab 5
                 if(k === "Part Number" || k === "Description") {
                     syncToTab5();
                 }
@@ -998,7 +997,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
             data6.splice(ri,1); 
             selectedIndexes6.delete(ri);
             renderTable6(); 
-            syncToTab5(); // Refresh Tab 5
+            syncToTab5(); 
             showToast("Komponen berhasil dihapus.","danger"); 
         } 
     });
@@ -1106,7 +1105,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         showToast("File PDF berhasil diunduh.","success"); 
     });
 
-    // Tab 5 (TAGIHAN RETURN)
+    // Tab 5 (TAGIHAN RETURN) - UPDATED EXPORTS
     $("#excelBtn5").addEventListener("click", function() { 
         if(!data5.length){showToast("Tidak ada data.","danger");return;} 
         var wb = XLSX.utils.book_new();
@@ -1116,7 +1115,8 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         wsData.push([]);
         wsData.push(["Tanggal: " + new Date().toLocaleDateString("id-ID", {day:"numeric", month:"long", year:"numeric"})]); 
         wsData.push([]);
-        wsData.push(["No", "Catatan", "Part", "Qty Reservasi", "Part Demand", "Description", "Serial Number", "Teknisi Perbaikan", "Lamanya Hari"]);
+        // Urutan Header Disesuaikan
+        wsData.push(["No", "Catatan", "Part", "Description", "Qty Reservasi", "Part Demand", "Serial Number", "Teknisi Perbaikan", "Lamanya Hari"]);
         
         var gt=calcTotal(data5,"Qty Reservasi"); 
         for(var i=0;i<data5.length;i++){
@@ -1125,18 +1125,18 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 i+1, 
                 r["Catatan"]||"", 
                 r["Part"]||"", 
+                r["Description"]||"", // Dipindahkan
                 r["Qty Reservasi"]||"", 
                 r["Part Demand"]||"", 
-                r["Description"]||"", 
                 r["Serial Number"]||"", 
                 r["Teknisi Perbaikan"]||"", 
                 r["Lamanya Hari"]||""
             ]); 
         }
-        wsData.push(["", "", "TOTAL QTY", gt, "", "", "", "", ""]); 
+        wsData.push(["", "", "TOTAL QTY", "", gt, "", "", "", ""]); // Adjusted position
         
         var ws = XLSX.utils.aoa_to_sheet(wsData);
-        ws["!cols"]=[{wch:6},{wch:30},{wch:30},{wch:14},{wch:14},{wch:30},{wch:25},{wch:25},{wch:15}];
+        ws["!cols"]=[{wch:6},{wch:30},{wch:30},{wch:30},{wch:14},{wch:14},{wch:25},{wch:25},{wch:15}];
         
         XLSX.utils.book_append_sheet(wb,ws,"Tagihan Part Return");
         XLSX.writeFile(wb,"Tagihan Part Return.xlsx");
@@ -1146,7 +1146,8 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     $("#pdfBtn5").addEventListener("click", function() { 
         if(!data5.length){showToast("Tidak ada data.","danger");return;} 
         var doc=new jsPDF({orientation:"l", unit:"mm", format:"a4"}), pw=doc.internal.pageSize.getWidth(), mg={left:12, right:12}; 
-        var col=["No","Catatan","Part","Qty","Demand","Description","Serial","Teknisi","Lama Hari"], rows=[]; 
+        // Urutan Header Disesuaikan
+        var col=["No","Catatan","Part","Description","Qty","Demand","Serial","Teknisi","Lama Hari"], rows=[]; 
         
         doc.setFontSize(18); doc.setTextColor(30,41,59); doc.setFont(undefined,"bold"); doc.text("Tagihan Sparepart Bekas Return", pw/2, 20, {align: "center"});
         
@@ -1161,9 +1162,9 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 String(i+1),
                 String(r["Catatan"]||""),
                 String(r["Part"]||""),
+                String(r["Description"]||""), // Dipindahkan
                 String(r["Qty Reservasi"]||""),
                 String(r["Part Demand"]||""),
-                String(r["Description"]||""), 
                 String(r["Serial Number"]||""),
                 String(r["Teknisi Perbaikan"]||""),
                 String(r["Lamanya Hari"]||"")
@@ -1176,7 +1177,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
             margin:mg, 
             styles:{font:"helvetica",fontStyle:"normal",fontSize:7,lineColor:[226,232,240],lineWidth:0.3,textColor:[51,65,85],cellPadding:2,overflow:"linebreak"}, 
             headStyles:{fillColor:[240,240,240],textColor:[0,0,0],fontStyle:"bold",fontSize:8,lineColor:[200,200,200],halign:"center",valign:"middle"}, 
-            columnStyles:{0:{halign:"center",cellWidth:8},3:{halign:"center",cellWidth:10},8:{halign:"center",cellWidth:15}}, 
+            columnStyles:{0:{halign:"center",cellWidth:8},4:{halign:"center",cellWidth:10},8:{halign:"center",cellWidth:15}}, 
             theme:"grid"
         }); 
         
@@ -1217,7 +1218,8 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         table.style.width = '100%';
         table.style.borderCollapse = 'collapse';
         
-        var thead = ['No','Catatan','Part','Qty','Demand','Description','Serial','Teknisi','Lama Hari'];
+        // Urutan Header Disesuaikan
+        var thead = ['No','Catatan','Part','Description','Qty','Demand','Serial','Teknisi','Lama Hari'];
         var htmlHeader = '<thead><tr>';
         thead.forEach(h => {
             htmlHeader += `<th style="background-color:#f8fafc; color:#1e293b; font-weight:700; font-size:16px; padding:12px; border:1px solid #e2e8f0; text-align:center; text-transform:uppercase;">${h}</th>`;
@@ -1231,9 +1233,9 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
             htmlBody += `<td style="text-align:center; padding:10px; border:1px solid #e2e8f0; font-size:15px;">${i+1}</td>`;
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Catatan"]||""}</td>`;
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Part"]||""}</td>`;
+            htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Description"]||""}</td>`; // Dipindahkan
             htmlBody += `<td style="text-align:center; padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Qty Reservasi"]||""}</td>`;
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Part Demand"]||""}</td>`;
-            htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Description"]||""}</td>`; 
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Serial Number"]||""}</td>`;
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Teknisi Perbaikan"]||""}</td>`;
             htmlBody += `<td style="text-align:center; padding:10px; border:1px solid #e2e8f0; font-size:15px; background:#f8fafc; font-weight:600;">${r["Lamanya Hari"]||""}</td>`;
