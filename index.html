@@ -454,7 +454,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 <button class="btn-info" id="jpegBtn5" aria-label="Unduh sebagai JPEG HD"><i class="fas fa-image"></i> Download JPEG (HD)</button>
                 <span class="btn-group-info"><span class="badge" id="stockCountBadge5">0</span> baris surat jalan</span>
             </div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;"><i class="fas fa-info-circle"></i> Data diambil dari Tab 1 (Data Terpilih) & Tab 6 (Master Komponen). Tabel ini bersifat <strong>Read Only</strong>.</p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;"><i class="fas fa-info-circle"></i> Data diambil dari Tab 1 (Data Terpilih). Kolom <strong>Description</strong> otomatis dari Tab 6 (Master). Tabel ini bersifat <strong>Read Only</strong>.</p>
             <label for="search5" class="sr-only">Cari data di tabel tagihan return</label>
             <input type="text" id="search5" placeholder="Cari data tagihan return...">
             <div class="table-container">
@@ -549,6 +549,24 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         toastContainer.appendChild(t); setTimeout(()=>{ if(t.parentNode) t.remove(); }, 3200);
     }
 
+    // ========== FUNGSI VLOOKUP (FITUR BARU) ==========
+    // Mencari Description di Tab 6 berdasarkan Part Number
+    function vlookupDescription(partNumber) {
+        if (!partNumber || data6.length === 0) return "";
+        
+        // Normalisasi input (trim dan uppercase untuk pencarian yang lebih akurat)
+        var searchKey = String(partNumber).trim().toUpperCase();
+        
+        // Cari di data6 (Master Komponen)
+        for (var i = 0; i < data6.length; i++) {
+            var masterPart = String(data6[i]["Part Number"] || "").trim().toUpperCase();
+            if (masterPart === searchKey) {
+                return data6[i]["Description"] || ""; // Kembalikan description jika ketemu
+            }
+        }
+        return ""; // Kembalikan kosong jika tidak ketemu
+    }
+
     function calculateDays(dateStr) {
         if (!dateStr) return "";
         dateStr = String(dateStr).trim();
@@ -566,20 +584,6 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         var diffTime = today - date;
         var diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
         return diffDays >= 0 ? diffDays : 0;
-    }
-
-    // ========== FUNGSI VLOOKUP (Baru) ==========
-    // Mencari Description di Tab 6 berdasarkan Part Demand
-    function vlookupDescription(partDemand) {
-        if (!partDemand || data6.length === 0) return "";
-        var pd = String(partDemand).trim();
-        for (var i = 0; i < data6.length; i++) {
-            var pn = String(data6[i]["Part Number"]).trim();
-            if (pn === pd) {
-                return data6[i]["Description"] || "";
-            }
-        }
-        return "";
     }
 
     document.addEventListener("keydown", function(e) {
@@ -655,9 +659,9 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 data6 = mapped; selectedIndexes6.clear();
                 checkAllCb6.checked = false;
                 renderTable6();
-                // Penting: Sync Tab 5 setelah Master diupdate untuk refresh VLOOKUP
+                // Penting: Refresh Tab 5 setelah Master diupdate agar VLOOKUP baru berlaku
                 syncToTab5(); 
-                showToast(parsed.length + " komponen berhasil diimpor.", "success");
+                showToast(parsed.length + " komponen berhasil diimpor. Data Tab 5 diperbarui.", "success");
             } catch (err) { showToast("Gagal membaca file Master: " + err.message, "danger"); }
         };
         reader.readAsArrayBuffer(file);
@@ -704,7 +708,6 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         syncToTab2(); syncToTab3(); syncToTab4(); syncToTab5();
     });
 
-    // CheckAll Tab 6
     checkAllCb6.addEventListener("change", function() {
         var isC = checkAllCb6.checked;
         var rows = tbody6.querySelectorAll("tr");
@@ -814,7 +817,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     function syncToTab3() { var fromTab1=[]; selectedIndexes.forEach(idx => { if(data1[idx]){ var src=data1[idx]; var t2r=null; for(var i=0; i<data2.length; i++){ if(data2[i]._sourceIdx === idx) { t2r = data2[i]; break; } } var cs=(t2r&&t2r["Catatan"])?t2r["Catatan"]:(src["Catatan"]||""); var r={_sourceIdx:idx,_isNew:false,"Part Demand / Part":(t2r&&t2r["Part"])?t2r["Part"]:(src["Part"]||""),"Lot":"","Attribute":"","QTY / Qty Transaksi":(t2r&&t2r["Qty Transaksi"])?t2r["Qty Transaksi"]:(src["Qty Transaksi"]||""),"QTY Konversi":"","UM Konversi":"","Remarks 1":"","Remarks 2":"","Nomor Service Job / Catatan":extractSjob(cs)}; fromTab1.push(r); } }); var manual=data3.filter(r=>r._isNew); data3=fromTab1.concat(manual); demandBadge.textContent=data3.length; renderTable3(); }
     function syncToTab4() { var fromTab1=[]; selectedIndexes.forEach(idx => { if(data1[idx]){ var r=Object.assign({},data1[idx],{_sourceIdx:idx,_isNew:false}); fromTab1.push(r); } }); var manual=data4.filter(r=>r._isNew); data4=fromTab1.concat(manual); stockBadge.textContent=data4.length; renderTable4(); }
     
-    // PERUBAHAN: syncToTab5 sekarang memasukkan field "Description" hasil VLOOKUP
+    // PERUBAHAN: syncToTab5 sekarang memanggil fungsi VLOOKUP
     function syncToTab5() { 
         var fromTab1=[]; 
         selectedIndexes.forEach(idx => { 
@@ -823,10 +826,10 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 var days = calculateDays(src["Disetujui Pada"]);
                 
                 // === LOGIKA VLOOKUP ===
-                // Ambil Part Demand dari sumber
-                var pd = src["Part Demand"];
-                // Cari Description di Master Komponen (Tab 6)
-                var desc = vlookupDescription(pd);
+                // Ambil Part dari Tab 1 (sumber data Tab 5)
+                var partCode = src["Part"] || "";
+                // Cari Description di Master (Tab 6)
+                var desc = vlookupDescription(partCode);
 
                 var r=Object.assign({}, src, {
                     _sourceIdx:idx,
@@ -847,7 +850,6 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
     function renderTable3() { var frag=document.createDocumentFragment(), filtered=getFiltered(data3,currentFilter3), totalA=0; if(!filtered.length && !data3.length){ var tr=document.createElement("tr"); tr.innerHTML='<td colspan="11"><div class="empty-state"><i class="fas fa-exchange-alt"></i><p>Belum ada data SJOB.</p></div></td>'; frag.appendChild(tr); } else if(!filtered.length){ var tr=document.createElement("tr"); tr.innerHTML='<td colspan="11"><div class="empty-state"><i class="fas fa-search"></i><p>Tidak ditemukan.</p></div></td>'; frag.appendChild(tr); } else { for(var fi=0; fi<filtered.length; fi++){ var row=filtered[fi]; var ri = data3.indexOf(row); totalA+=parseFloat(row["QTY / Qty Transaksi"])||0; var tr=document.createElement("tr"); if(row._isNew) tr.className="new-row"; var tdN=document.createElement("td"); tdN.className="no-urut"; tdN.textContent=fi+1; tr.appendChild(tdN); for(var ki=1; ki<KEYS_TAB3.length; ki++){ var td=document.createElement("td"); td.contentEditable="true"; td.dataset.key=KEYS_TAB3[ki]; td.dataset.ridx3=ri; td.textContent=row[KEYS_TAB3[ki]]||""; tr.appendChild(td); } var tdA=document.createElement("td"); tdA.className="col-action"; var btn=document.createElement("button"); btn.className="btn-danger"; btn.dataset.ridx3=ri; btn.innerHTML='<i class="fas fa-trash-alt"></i>'; tdA.appendChild(btn); tr.appendChild(tdA); frag.appendChild(tr); } } tbody3.innerHTML=""; tbody3.appendChild(frag); totalQty3aEl.textContent=totalA.toLocaleString("id-ID"); demandBadge.textContent=data3.length; }
     function renderTable4() { var frag=document.createDocumentFragment(), filtered=getFiltered(data4,currentFilter4), total=0; if(!filtered.length && !data4.length){ var tr=document.createElement("tr"); tr.innerHTML='<td colspan="8"><div class="empty-state"><i class="fas fa-boxes"></i><p>Belum ada data surat jalan.</p></div></td>'; frag.appendChild(tr); } else if(!filtered.length){ var tr=document.createElement("tr"); tr.innerHTML='<td colspan="8"><div class="empty-state"><i class="fas fa-search"></i><p>Tidak ditemukan.</p></div></td>'; frag.appendChild(tr); } else { for(var fi=0; fi<filtered.length; fi++){ var row=filtered[fi]; var ri = data4.indexOf(row); total+=parseFloat(row["Qty Reservasi"])||0; var tr=document.createElement("tr"); if(row._isNew) tr.className="new-row"; var tdN=document.createElement("td"); tdN.className="no-urut"; tdN.textContent=fi+1; tr.appendChild(tdN); for(var ki=1; ki<KEYS_TAB4.length; ki++){ var td=document.createElement("td"); td.contentEditable="true"; td.dataset.key=KEYS_TAB4[ki]; td.dataset.ridx4=ri; td.textContent=row[KEYS_TAB4[ki]]||""; tr.appendChild(td); } var tdA=document.createElement("td"); tdA.className="col-action"; var btn=document.createElement("button"); btn.className="btn-danger"; btn.dataset.ridx4=ri; btn.innerHTML='<i class="fas fa-trash-alt"></i>'; tdA.appendChild(btn); tr.appendChild(tdA); frag.appendChild(tr); } } tbody4.innerHTML=""; tbody4.appendChild(frag); totalQty4El.textContent=total.toLocaleString("id-ID"); }
     
-    // PERUBAHAN: Render Table 5 sekarang menyertakan kolom Description
     function renderTable5() { 
         var frag=document.createDocumentFragment(), filtered=getFiltered(data5,currentFilter5), total=0; 
         if(!filtered.length && !data5.length){ 
@@ -956,16 +958,21 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
             else { selectedIndexes6.delete(idx); } 
         } 
     });
+    
+    // PERUBAHAN: Saat data Master diubah, update Tab 5
     tbody6.addEventListener("focusout", function(e) { 
         if(e.target.hasAttribute("contenteditable")){ 
             var ri=parseInt(e.target.dataset.ridx6), k=e.target.dataset.key; 
             if(data6[ri]!==undefined){ 
                 data6[ri][k]=e.target.textContent; 
-                // Jika edit Part Number atau Description di Master, perlu refresh Tab 5
-                syncToTab5(); 
+                // Jika kolom Part Number atau Description diubah, refresh Tab 5
+                if(k === "Part Number" || k === "Description") {
+                    syncToTab5();
+                }
             } 
         } 
     });
+    
     tbody6.addEventListener("click", function(e) { 
         if(e.target.closest(".btn-danger")){ 
             var ri=parseInt(e.target.closest(".btn-danger").dataset.ridx6); 
@@ -1080,7 +1087,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         showToast("File PDF berhasil diunduh.","success"); 
     });
 
-    // Tab 5 Export Excel (Dengan Description VLOOKUP)
+    // Tab 5 (TAGIHAN RETURN)
     $("#excelBtn5").addEventListener("click", function() { 
         if(!data5.length){showToast("Tidak ada data.","danger");return;} 
         var wb = XLSX.utils.book_new();
@@ -1117,7 +1124,6 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         showToast("File Excel berhasil diunduh.","success"); 
     });
 
-    // Tab 5 Export PDF (Dengan Description VLOOKUP)
     $("#pdfBtn5").addEventListener("click", function() { 
         if(!data5.length){showToast("Tidak ada data.","danger");return;} 
         var doc=new jsPDF({orientation:"l", unit:"mm", format:"a4"}), pw=doc.internal.pageSize.getWidth(), mg={left:12, right:12}; 
@@ -1138,7 +1144,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
                 String(r["Part"]||""),
                 String(r["Qty Reservasi"]||""),
                 String(r["Part Demand"]||""),
-                String(r["Description"]||""),
+                String(r["Description"]||""), 
                 String(r["Serial Number"]||""),
                 String(r["Teknisi Perbaikan"]||""),
                 String(r["Lamanya Hari"]||"")
@@ -1165,7 +1171,6 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
         showToast("File PDF berhasil diunduh.","success"); 
     });
 
-    // Tab 5 JPEG HD (Dengan Description VLOOKUP)
     $("#jpegBtn5").addEventListener("click", function() {
         if(!data5.length){showToast("Tidak ada data untuk di-export.","danger");return;}
         
@@ -1209,7 +1214,7 @@ tfoot td { padding: 12px; border-bottom: none; border-top: 2px solid var(--borde
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Part"]||""}</td>`;
             htmlBody += `<td style="text-align:center; padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Qty Reservasi"]||""}</td>`;
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Part Demand"]||""}</td>`;
-            htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Description"]||""}</td>`;
+            htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Description"]||""}</td>`; 
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Serial Number"]||""}</td>`;
             htmlBody += `<td style="padding:10px; border:1px solid #e2e8f0; font-size:15px;">${r["Teknisi Perbaikan"]||""}</td>`;
             htmlBody += `<td style="text-align:center; padding:10px; border:1px solid #e2e8f0; font-size:15px; background:#f8fafc; font-weight:600;">${r["Lamanya Hari"]||""}</td>`;
