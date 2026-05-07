@@ -20,8 +20,10 @@
     --accent-soft: rgba(194,166,51,0.1);
     --green: #00e676;
     --green-glow: rgba(0,230,118,0.2);
+    --green-bg: rgba(0,230,118,0.08);
     --red: #ff5252;
     --red-glow: rgba(255,82,82,0.2);
+    --red-bg: rgba(255,82,82,0.08);
     --input-bg: rgba(255,255,255,0.03);
     --shadow: rgba(0,0,0,0.4);
     --particle-color: 194, 166, 51;
@@ -53,8 +55,10 @@
     --accent-soft: rgba(158,132,36,0.08);
     --green: #00894a;
     --green-glow: rgba(0,137,74,0.12);
+    --green-bg: rgba(0,137,74,0.06);
     --red: #d32f2f;
     --red-glow: rgba(211,47,47,0.12);
+    --red-bg: rgba(211,47,47,0.06);
     --input-bg: rgba(255,255,255,0.8);
     --shadow: rgba(0,0,0,0.08);
     --particle-color: 158, 132, 36;
@@ -359,7 +363,59 @@
     word-break: break-all;
     transition: color 0.5s;
   }
-  /* === MENCEGAH TEKS ANGKA PANJANG PINDAH KE BAWAH === */
+
+  /* === BADGE UNTUNG / RUGI OTOMATIS === */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .status-badge.profit {
+    background: var(--green-bg);
+    color: var(--green);
+    border: 1px solid var(--green-glow);
+    box-shadow: 0 0 12px var(--green-glow);
+  }
+  .status-badge.loss {
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid var(--red-glow);
+    box-shadow: 0 0 12px var(--red-glow);
+  }
+  .status-badge.neutral {
+    background: var(--accent-soft);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .status-badge i {
+    font-size: 11px;
+    transition: transform 0.3s;
+  }
+  .status-badge.profit i { animation: badgePulse 1.5s ease-in-out infinite; }
+  .status-badge.loss i { animation: badgeShake 2s ease-in-out infinite; }
+  
+  @keyframes badgePulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+  @keyframes badgeShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-2px); }
+    40% { transform: translateX(2px); }
+    60% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+  }
+
   .no-wrap-value {
     white-space: nowrap;
     overflow-x: auto;
@@ -566,14 +622,17 @@
     </div>
     <div class="stat-card fade-up" id="profitCard">
       <div class="stat-label">Untung / Rugi</div>
-      <!-- Class no-wrap-value mencegah angka pindah ke bawah -->
+      <!-- Badge otomatis UNTUNG / RUGI -->
+      <div class="status-badge neutral" id="statusBadge">
+        <i class="fa-solid fa-minus"></i>
+        <span id="statusText">MENUNGGU</span>
+      </div>
       <div class="stat-value no-wrap-value" id="profitLoss">Rp 0</div>
       <div class="stat-sub" id="profitPct">0%</div>
     </div>
     <div class="stat-card running-card fade-up" id="runningCard">
       <div class="running-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
       <div class="stat-label">Total Harga Berjalan</div>
-      <!-- Class no-wrap-value mencegah angka pindah ke bawah -->
       <div class="stat-value no-wrap-value" id="runningTotal">Rp 0</div>
       <div class="stat-sub" id="runningSub">Modal + Untung/Rugi</div>
     </div>
@@ -811,7 +870,7 @@ function renumberRows() {
 }
 
 /* ==========================================
-   HITUNG ULANG
+   HITUNG ULANG + BADGE UNTUNG/RUGI
    ========================================== */
 function recalcAll() {
   var rows = Array.from(buyTbody.querySelectorAll("tr"));
@@ -832,24 +891,47 @@ function recalcAll() {
   var profitEl = document.getElementById("profitLoss");
   var pctEl = document.getElementById("profitPct");
   var profitCard = document.getElementById("profitCard");
+  var statusBadge = document.getElementById("statusBadge");
+  var statusText = document.getElementById("statusText");
+  var badgeIcon = statusBadge.querySelector("i");
 
   profitEl.textContent = (profit >= 0 ? "+" : "") + fmt(profit);
   pctEl.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
 
   if (totalQty > 0 && manual > 0) {
     if (profit >= 0) {
+      /* === KONDISI UNTUNG === */
       profitEl.style.color = "var(--green)";
       pctEl.style.color = "var(--green)";
       profitCard.className = "stat-card fade-up profit-card";
+
+      // Ubah badge jadi UNTUNG
+      statusBadge.className = "status-badge profit";
+      badgeIcon.className = "fa-solid fa-arrow-up";
+      statusText.textContent = "UNTUNG";
+
     } else {
+      /* === KONDISI RUGI === */
       profitEl.style.color = "var(--red)";
       pctEl.style.color = "var(--red)";
       profitCard.className = "stat-card fade-up loss-card";
+
+      // Ubah badge jadi RUGI
+      statusBadge.className = "status-badge loss";
+      badgeIcon.className = "fa-solid fa-arrow-down";
+      statusText.textContent = "RUGI";
+
     }
   } else {
+    /* === KONDISI NETRAL (belum ada harga saat ini) === */
     profitEl.style.color = "var(--fg)";
     pctEl.style.color = "var(--fg-muted)";
     profitCard.className = "stat-card fade-up";
+
+    // Badge netral
+    statusBadge.className = "status-badge neutral";
+    badgeIcon.className = "fa-solid fa-minus";
+    statusText.textContent = "MENUNGGU";
   }
 
   /* === TOTAL HARGA BERJALAN === */
@@ -992,6 +1074,7 @@ function downloadExcel() {
     ["Total Jumlah Beli", document.getElementById("totalQtyBuy").textContent],
     ["Total Modal", document.getElementById("totalModal").textContent],
     ["Harga Rata-Rata", document.getElementById("avgBuyPrice").textContent],
+    ["Status", document.getElementById("statusText").textContent],
     ["Untung / Rugi", document.getElementById("profitLoss").textContent],
     ["Total Harga Berjalan", document.getElementById("runningTotal").textContent],
     [],
