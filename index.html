@@ -359,6 +359,22 @@
     word-break: break-all;
     transition: color 0.5s;
   }
+  /* === MENCEGAH TEKS ANGKA PANJANG PINDAH KE BAWAH === */
+  .no-wrap-value {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    word-break: normal;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+    padding-bottom: 2px;
+    margin-bottom: -2px;
+  }
+  .no-wrap-value::-webkit-scrollbar { height: 3px; }
+  .no-wrap-value::-webkit-scrollbar-track { background: transparent; }
+  .no-wrap-value::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
+
   .stat-sub { font-size:11px; color:var(--fg-muted); margin-top:4px; transition: color 0.5s; }
 
   .stat-card .manual-input { margin-top: 6px; }
@@ -550,13 +566,15 @@
     </div>
     <div class="stat-card fade-up" id="profitCard">
       <div class="stat-label">Untung / Rugi</div>
-      <div class="stat-value" id="profitLoss">Rp 0</div>
+      <!-- Class no-wrap-value mencegah angka pindah ke bawah -->
+      <div class="stat-value no-wrap-value" id="profitLoss">Rp 0</div>
       <div class="stat-sub" id="profitPct">0%</div>
     </div>
     <div class="stat-card running-card fade-up" id="runningCard">
       <div class="running-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
       <div class="stat-label">Total Harga Berjalan</div>
-      <div class="stat-value" id="runningTotal">Rp 0</div>
+      <!-- Class no-wrap-value mencegah angka pindah ke bawah -->
+      <div class="stat-value no-wrap-value" id="runningTotal">Rp 0</div>
       <div class="stat-sub" id="runningSub">Modal + Untung/Rugi</div>
     </div>
     <div class="stat-card fade-up">
