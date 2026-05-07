@@ -632,7 +632,7 @@
     </div>
     <div class="stat-card running-card fade-up" id="runningCard">
       <div class="running-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-      <div class="stat-label">Total Harga Berjalan</div>
+      <div class="stat-label">Total Portofolio Berjalan</div>
       <div class="stat-value no-wrap-value" id="runningTotal">Rp 0</div>
       <div class="stat-sub" id="runningSub">Modal + Untung/Rugi</div>
     </div>
@@ -934,7 +934,7 @@ function recalcAll() {
     statusText.textContent = "MENUNGGU";
   }
 
-  /* === TOTAL HARGA BERJALAN === */
+  /* === TOTAL PORTOFOLIO BERJALAN === */
   var runningTotal = totalModal + profit;
   var runningEl = document.getElementById("runningTotal");
   var runningSubEl = document.getElementById("runningSub");
@@ -1076,7 +1076,7 @@ function downloadExcel() {
     ["Harga Rata-Rata", document.getElementById("avgBuyPrice").textContent],
     ["Status", document.getElementById("statusText").textContent],
     ["Untung / Rugi", document.getElementById("profitLoss").textContent],
-    ["Total Harga Berjalan", document.getElementById("runningTotal").textContent],
+    ["Total Portofolio Berjalan", document.getElementById("runningTotal").textContent],
     [],
     ["Terakhir Update", document.getElementById("lastUpdate").textContent]
   ]);
