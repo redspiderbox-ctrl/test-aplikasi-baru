@@ -1,360 +1,330 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>POS Kasir Modern</title>
+  <title>POS KASIR MODERN</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<style>
+  <style>
+    * {
+      font-family: 'Poppins', sans-serif;
+    }
 
-body{
-    background:#f4f6f9;
-    font-family:'Segoe UI',sans-serif;
-}
+    body {
+      background: #f4f6f9;
+      overflow-x: hidden;
+    }
 
-.sidebar{
-    width:250px;
-    height:100vh;
-    position:fixed;
-    background:#1e293b;
-    color:white;
-    padding:20px;
-}
+    .sidebar {
+      width: 250px;
+      height: 100vh;
+      position: fixed;
+      background: #111827;
+      color: white;
+      padding-top: 20px;
+    }
 
-.sidebar h3{
-    margin-bottom:30px;
-}
+    .sidebar h3 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
 
-.sidebar a{
-    display:block;
-    color:white;
-    text-decoration:none;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:10px;
-    transition:0.3s;
-}
+    .sidebar a {
+      display: block;
+      color: #d1d5db;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
 
-.sidebar a:hover{
-    background:#334155;
-}
+    .sidebar a:hover {
+      background: #1f2937;
+      color: white;
+    }
 
-.main{
-    margin-left:260px;
-    padding:20px;
-}
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+    }
 
-.card{
-    border:none;
-    border-radius:20px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.1);
-}
+    .card-box {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: 0.3s;
+    }
 
-.login-box{
-    width:350px;
-    margin:auto;
-    margin-top:100px;
-}
+    .card-box:hover {
+      transform: translateY(-3px);
+    }
 
-.hidden{
-    display:none;
-}
+    .login-box {
+      width: 350px;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
 
-.table{
-    background:white;
-}
+    .center-screen {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-@media(max-width:768px){
+    .hidden {
+      display: none;
+    }
 
-.sidebar{
-    width:100%;
-    height:auto;
-    position:relative;
-}
+    .table {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+    }
 
-.main{
-    margin-left:0;
-}
+    .btn-modern {
+      border-radius: 12px;
+    }
 
-}
+    .fade-in {
+      animation: fade 0.5s ease;
+    }
 
-</style>
-
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- LOGIN -->
+  <!-- LOGIN -->
+  <div id="loginPage" class="center-screen">
 
-<div id="loginPage">
+    <div class="login-box fade-in">
 
-<div class="login-box">
+      <h3 class="text-center mb-4">POS KASIR</h3>
 
-<div class="card p-4">
+      <input type="text" id="username" class="form-control mb-3" placeholder="Username">
 
-<h3 class="text-center mb-4">
-<i class="fa fa-store"></i>
-POS KASIR
-</h3>
+      <input type="password" id="password" class="form-control mb-3" placeholder="Password">
 
-<input type="text" id="username" class="form-control mb-3" placeholder="Username">
+      <button onclick="login()" class="btn btn-dark w-100 btn-modern">
+        LOGIN
+      </button>
 
-<input type="password" id="password" class="form-control mb-3" placeholder="Password">
+    </div>
 
-<button class="btn btn-dark w-100" onclick="login()">
-LOGIN
-</button>
+  </div>
 
-<p id="loginMsg" class="text-danger mt-3 text-center"></p>
+  <!-- DASHBOARD -->
+  <div id="dashboardPage" class="hidden">
 
-</div>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
 
-</div>
+      <h3>POS MODERN</h3>
 
-</div>
+      <a href="#">Dashboard</a>
+      <a href="#">Kasir</a>
+      <a href="#">Data Penjualan</a>
+      <a href="#">Laporan</a>
+      <a href="#">Pengaturan</a>
 
-<!-- DASHBOARD -->
+    </div>
 
-<div id="dashboardPage" class="hidden">
+    <!-- CONTENT -->
+    <div class="content fade-in">
 
-<div class="sidebar">
+      <div class="row mb-4">
 
-<h3>POS MODERN</h3>
+        <div class="col-md-4">
+          <div class="card card-box p-4">
+            <h5>Total Penjualan</h5>
+            <h2>Rp 0</h2>
+          </div>
+        </div>
 
-<a href="#">
-<i class="fa fa-chart-line"></i>
-Dashboard
-</a>
+        <div class="col-md-4">
+          <div class="card card-box p-4">
+            <h5>Total Produk</h5>
+            <h2>0</h2>
+          </div>
+        </div>
 
-<a href="#">
-<i class="fa fa-box"></i>
-Produk
-</a>
+        <div class="col-md-4">
+          <div class="card card-box p-4">
+            <h5>Total Transaksi</h5>
+            <h2>0</h2>
+          </div>
+        </div>
 
-<a href="#">
-<i class="fa fa-cash-register"></i>
-Kasir
-</a>
+      </div>
 
-<a href="#">
-<i class="fa fa-receipt"></i>
-Transaksi
-</a>
+      <!-- FORM -->
+      <div class="card card-box p-4 mb-4">
 
-<a href="#">
-<i class="fa fa-gear"></i>
-Pengaturan
-</a>
+        <h4 class="mb-4">Input Transaksi</h4>
 
-</div>
+        <div class="row">
 
-<div class="main">
+          <div class="col-md-3">
+            <input type="text" id="nama" class="form-control" placeholder="Nama Barang">
+          </div>
 
-<div class="row">
+          <div class="col-md-2">
+            <input type="text" id="kategori" class="form-control" placeholder="Kategori">
+          </div>
 
-<div class="col-md-4 mb-3">
+          <div class="col-md-2">
+            <input type="number" id="harga" class="form-control" placeholder="Harga">
+          </div>
 
-<div class="card p-4">
+          <div class="col-md-2">
+            <input type="number" id="qty" class="form-control" placeholder="Qty">
+          </div>
 
-<h5>Total Produk</h5>
+          <div class="col-md-3">
+            <button onclick="saveData()" class="btn btn-primary w-100 btn-modern">
+              Simpan
+            </button>
+          </div>
 
-<h2 id="totalProduk">0</h2>
+        </div>
 
-</div>
+      </div>
 
-</div>
+      <!-- TABLE -->
+      <div class="card card-box p-4">
 
-<div class="col-md-4 mb-3">
+        <h4 class="mb-4">Data Penjualan</h4>
 
-<div class="card p-4">
+        <div class="table-responsive">
 
-<h5>Total Penjualan</h5>
+          <table class="table table-bordered align-middle">
 
-<h2>Rp 0</h2>
+            <thead class="table-dark">
 
-</div>
+              <tr>
+                <th>ID</th>
+                <th>Tanggal</th>
+                <th>Nama Barang</th>
+                <th>Kategori</th>
+                <th>Harga</th>
+                <th>Qty</th>
+                <th>Total</th>
+              </tr>
 
-</div>
+            </thead>
 
-<div class="col-md-4 mb-3">
+            <tbody id="tableData"></tbody>
 
-<div class="card p-4">
+          </table>
 
-<h5>Total Transaksi</h5>
+        </div>
 
-<h2>0</h2>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
-</div>
+  <script>
 
-<div class="card p-4 mt-4">
+    // LOGIN
+    function login() {
 
-<h4 class="mb-3">Tambah Produk</h4>
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-<div class="row">
+      if (username === 'admin' && password === 'admin') {
 
-<div class="col-md-3">
-<input type="text" id="kode" class="form-control" placeholder="Kode">
-</div>
+        document.getElementById('loginPage').classList.add('hidden');
 
-<div class="col-md-3">
-<input type="text" id="nama" class="form-control" placeholder="Nama Produk">
-</div>
+        document.getElementById('dashboardPage').classList.remove('hidden');
 
-<div class="col-md-2">
-<input type="number" id="harga" class="form-control" placeholder="Harga">
-</div>
+        loadData();
 
-<div class="col-md-2">
-<input type="number" id="stok" class="form-control" placeholder="Stok">
-</div>
+      } else {
 
-<div class="col-md-2">
-<button class="btn btn-primary w-100" onclick="tambahProduk()">
-Simpan
-</button>
-</div>
-
-</div>
-
-</div>
-
-<div class="card p-4 mt-4">
-
-<h4 class="mb-3">Data Produk</h4>
-
-<div class="table-responsive">
-
-<table class="table table-bordered">
-
-<thead>
-
-<tr>
-<th>Kode</th>
-<th>Nama</th>
-<th>Harga</th>
-<th>Stok</th>
-<th>Tanggal</th>
-</tr>
-
-</thead>
-
-<tbody id="produkTable">
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-function login(){
-
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-
-  google.script.run
-  .withSuccessHandler(function(res){
-
-      if(res.status){
-
-          document.getElementById('loginPage').classList.add('hidden');
-
-          document.getElementById('dashboardPage').classList.remove('hidden');
-
-          loadProduk();
-
-      }else{
-
-          document.getElementById('loginMsg').innerHTML = res.message;
+        alert('Username / Password salah');
 
       }
+    }
 
-  })
-  .login({
-      username:username,
-      password:password
-  });
+    // SAVE DATA
+    function saveData() {
 
-}
+      const data = {
+        nama: document.getElementById('nama').value,
+        kategori: document.getElementById('kategori').value,
+        harga: document.getElementById('harga').value,
+        qty: document.getElementById('qty').value
+      };
 
-// TAMBAH PRODUK
+      google.script.run
+        .withSuccessHandler(function(res) {
 
-function tambahProduk(){
+          alert(res.message);
 
-  const data = {
+          loadData();
 
-      kode:document.getElementById('kode').value,
-      nama:document.getElementById('nama').value,
-      harga:document.getElementById('harga').value,
-      stok:document.getElementById('stok').value
+          document.getElementById('nama').value = '';
+          document.getElementById('kategori').value = '';
+          document.getElementById('harga').value = '';
+          document.getElementById('qty').value = '';
 
-  };
+        })
+        .saveData(data);
+    }
 
-  google.script.run
-  .withSuccessHandler(function(res){
+    // LOAD DATA
+    function loadData() {
 
-      alert(res);
+      google.script.run
+        .withSuccessHandler(function(data) {
 
-      loadProduk();
+          let html = '';
 
-      document.getElementById('kode').value='';
-      document.getElementById('nama').value='';
-      document.getElementById('harga').value='';
-      document.getElementById('stok').value='';
+          for (let i = 1; i < data.length; i++) {
 
-  })
-  .tambahProduk(data);
+            html += `
+              <tr>
+                <td>${data[i][0]}</td>
+                <td>${data[i][1]}</td>
+                <td>${data[i][2]}</td>
+                <td>${data[i][3]}</td>
+                <td>Rp ${data[i][4]}</td>
+                <td>${data[i][5]}</td>
+                <td>Rp ${data[i][6]}</td>
+              </tr>
+            `;
+          }
 
-}
+          document.getElementById('tableData').innerHTML = html;
 
-// LOAD DATA
+        })
+        .getData();
+    }
 
-function loadProduk(){
-
-  google.script.run
-  .withSuccessHandler(function(data){
-
-      let html = '';
-
-      data.forEach(function(row){
-
-          html += `
-          <tr>
-              <td>${row[0]}</td>
-              <td>${row[1]}</td>
-              <td>Rp ${row[2]}</td>
-              <td>${row[3]}</td>
-              <td>${row[4]}</td>
-          </tr>
-          `;
-
-      });
-
-      document.getElementById('produkTable').innerHTML = html;
-
-      document.getElementById('totalProduk').innerHTML = data.length;
-
-  })
-  .getProduk();
-
-}
-
-</script>
+  </script>
 
 </body>
 </html>
