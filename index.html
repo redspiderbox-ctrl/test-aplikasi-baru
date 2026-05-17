@@ -1,443 +1,433 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📦 Order Komponen System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulasi Pembelian DOGE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
   <style>
-    :root, [data-theme="dark"] {
-      --bg-primary: #0b1120; --bg-secondary: #111827; --bg-card: #1a2332;
-      --bg-card-hover: #1e293b; --bg-input: #0f172a; --border: #1e3a5f;
-      --border-focus: #00d4aa; --accent: #00d4aa; --accent-dim: rgba(0, 212, 170, 0.15);
-      --accent-glow: rgba(0, 212, 170, 0.3); --warning: #f59e0b; --danger: #ef4444;
-      --info: #3b82f6; --success: #10b981; --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8; --text-muted: #64748b;
-      --shadow: 0 4px 24px rgba(0,0,0,0.3); --shadow-glow: 0 0 30px rgba(0, 212, 170, 0.08);
-      --navbar-bg: rgba(11, 17, 32, 0.85); --table-head-bg: rgba(0,0,0,0.25);
-      --row-hover: rgba(0,212,170,0.03); --overlay-bg: rgba(0,0,0,0.6);
-      --toast-bg: #1a2332; --modal-bg: #1a2332;
-      --spinner-track: rgba(11,17,32,0.2); --spinner-top: #0b1120;
-      --spinner-accent-track: rgba(0,212,170,0.2); --radius: 8px; --radius-lg: 14px;
+    /* ====== CSS VARIABLES (MODE GELAP - DEFAULT) ====== */
+    :root {
+      --bg: #0b0e14; --bg2: #111621; --card: #151b28; --card2: #1a2233;
+      --border: #253045; --fg: #e6edf5; --muted: #6b7d99;
+      --accent: #e94560; --accent2: #ff6b81; --green: #00d68f; --green2: #00f5a0;
+      --gold: #f0b90b; --input-bg: #111621; --shadow: rgba(0, 0, 0, 0.4);
+      --header-bg: rgba(11, 14, 20, 0.85);
     }
-    [data-theme="light"] {
-      --bg-primary: #f0f4f8; --bg-secondary: #e2e8f0; --bg-card: #ffffff;
-      --bg-card-hover: #f8fafc; --bg-input: #f1f5f9; --border: #cbd5e1;
-      --border-focus: #0d9488; --accent: #0d9488; --accent-dim: rgba(13, 148, 136, 0.12);
-      --accent-glow: rgba(13, 148, 136, 0.15); --warning: #d97706; --danger: #dc2626;
-      --info: #2563eb; --success: #059669; --text-primary: #0f172a;
-      --text-secondary: #475569; --text-muted: #94a3b8;
-      --shadow: 0 4px 24px rgba(0,0,0,0.08); --shadow-glow: 0 0 20px rgba(13, 148, 136, 0.06);
-      --navbar-bg: rgba(240, 244, 248, 0.9); --table-head-bg: #f1f5f9;
-      --row-hover: rgba(13, 148, 136, 0.04);
-      --overlay-bg: rgba(0,0,0,0.3); --toast-bg: #ffffff; --modal-bg: #ffffff;
-      --spinner-track: rgba(255,255,255,0.4); --spinner-top: #ffffff;
-      --spinner-accent-track: rgba(13, 148, 136, 0.2);
-    }
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 20%, rgba(0,212,170,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.04) 0%, transparent 50%); pointer-events: none; z-index: 0; animation: bgFloat 30s ease-in-out infinite alternate; }
-    @keyframes bgFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(-2%,-1%) rotate(2deg); } }
-    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg-primary); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    
-    .login-wrapper { position: fixed; inset: 0; z-index: 5000; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); transition: opacity 0.5s ease; }
-    .login-wrapper.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: var(--shadow); animation: modalSlide 0.5s ease-out; }
-    .login-header { text-align: center; margin-bottom: 2rem; }
-    .login-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #0b1120; margin: 0 auto 1.25rem; }
-    .login-header h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.35rem; }
-    .login-header p { color: var(--text-muted); font-size: 0.85rem; }
-    .login-form { display: flex; flex-direction: column; gap: 1.15rem; }
-    .login-input-group { position: relative; }
-    .login-input-group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-    .login-input { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px 12px 42px; font-size: 0.9rem; font-family: inherit; color: var(--text-primary); outline: none; width: 100%; }
-    .login-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-dim); }
-    .login-error { color: var(--danger); font-size: 0.8rem; text-align: center; min-height: 1.2rem; }
-    .login-btn { width: 100%; padding: 12px; border-radius: var(--radius); border: none; background: linear-gradient(135deg, var(--accent), #00a88a); color: #0b1120; font-family: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .login-btn:hover { box-shadow: 0 0 30px rgba(0,212,170,0.4); transform: translateY(-2px); }
 
-    .app-wrapper { display: none; position: relative; z-index: 1; }
-    .app-wrapper.visible { display: block; animation: fadeIn 0.5s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes modalSlide { from { opacity: 0; transform: translateY(20px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    /* ====== MODE TERANG ====== */
+    [data-theme="light"] {
+      --bg: #f0f2f5; --bg2: #ffffff; --card: #ffffff; --card2: #f8f9fa;
+      --border: #d1d9e6; --fg: #1a1a2e; --muted: #5a6478;
+      --accent: #d63447; --accent2: #e94560; --green: #00b377; --green2: #00d68f;
+      --gold: #d4a017; --input-bg: #f0f2f5; --shadow: rgba(163, 177, 198, 0.3);
+      --header-bg: rgba(240, 242, 245, 0.85);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--fg);
+      min-height: 100vh; overflow-x: hidden; transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,69,96,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(0,214,143,0.05) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%); transition: background 0.4s ease;
+    }
+    .bg-grid::after {
+      content: ''; position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='%23253045' stroke-width='0.5'/%3E%3C/svg%3E"); opacity: 0.15;
+    }
+    [data-theme="light"] .bg-grid::after {
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='%23d1d9e6' stroke-width='0.5'/%3E%3C/svg%3E");
+    }
+
+    .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+    @keyframes floatUp { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 15% { opacity: 1; } 85% { opacity: 0.6; } 100% { opacity: 0; transform: translateY(-100vh) scale(1.2); } }
+
+    .container { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 20px 16px 80px; }
+
+    /* ====== HEADER & FREEZE PANEL ====== */
+    .header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 28px; padding: 20px;
+      border-bottom: 1px solid var(--border); background-color: var(--header-bg);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-radius: 0 0 16px 16px; position: sticky; top: 0; z-index: 50;
+      transition: background-color 0.4s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .header.is-scrolled { box-shadow: 0 4px 20px var(--shadow); border-bottom-color: transparent; }
+    .coin-icon {
+      width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #d4a017);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px; color: #111;
+      box-shadow: 0 0 30px rgba(240,185,11,0.3); animation: coinGlow 3s ease-in-out infinite;
+      position: relative; flex-shrink: 0;
+    }
+    .coin-icon::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(240,185,11,0.3); animation: coinPulse 3s ease-in-out infinite; }
+    @keyframes coinGlow { 0%,100% { box-shadow: 0 0 30px rgba(240,185,11,0.3); } 50% { box-shadow: 0 0 50px rgba(240,185,11,0.5); } }
+    @keyframes coinPulse { 0%,100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.15); opacity: 0.6; } }
+    .header-text h1 { font-size: 22px; font-weight: 700; background: linear-gradient(90deg, var(--fg), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-text p { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .status-badge { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 100px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); transition: all 0.3s; flex-shrink: 0; }
+    .status-dot.ok { background: var(--green); box-shadow: 0 0 8px rgba(0,214,143,0.5); }
+    .theme-toggle { background: var(--card); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--fg); font-size: 14px; transition: all 0.3s; }
+    .theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ====== MODAL POPUP TAMBAH TRANSAKSI ====== */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
     
-    .navbar { position: sticky; top: 0; z-index: 100; background: var(--navbar-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 2rem; }
-    .navbar-inner { max-width: 1500px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
-    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #0b1120; font-weight: 800; }
-    .logo-text { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); } .logo-text span { color: var(--accent); }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .last-sync { font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
-    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulse 2s ease-in-out infinite; }
-    .sync-dot.syncing { background: var(--warning); animation: syncPulse 0.6s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    @keyframes syncPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.4); } }
-    .theme-toggle, .logout-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.4s ease; position: relative; overflow: hidden; }
-    .theme-toggle:hover, .logout-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-    .logout-btn { color: var(--danger); border-color: rgba(239,68,68,0.3); }
-    .theme-toggle .icon-sun, .theme-toggle .icon-moon { position: absolute; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    [data-theme="dark"] .theme-toggle .icon-sun { transform: translateY(40px); opacity: 0; } [data-theme="dark"] .theme-toggle .icon-moon { transform: translateY(0); opacity: 1; }
-    [data-theme="light"] .theme-toggle .icon-sun { transform: translateY(0); opacity: 1; } [data-theme="light"] .theme-toggle .icon-moon { transform: translateY(-40px); opacity: 0; }
+    .modal-content {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px; width: 90%; max-width: 500px;
+      transform: translateY(30px) scale(0.95); transition: transform 0.3s ease;
+      box-shadow: 0 20px 50px var(--shadow);
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
     
-    .main-container { max-width: 1500px; margin: 0 auto; padding: 2rem; }
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.15rem 1.25rem; display: flex; align-items: center; gap: 1rem; transition: all 0.3s ease; }
-    .stat-card:hover { border-color: var(--accent); box-shadow: var(--shadow-glow); transform: translateY(-2px); }
-    .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-    .stat-icon.total { background: rgba(0,212,170,0.12); color: var(--accent); } .stat-icon.pending { background: rgba(239,68,68,0.12); color: var(--danger); } .stat-icon.proses { background: rgba(168,85,247,0.12); color: #a855f7; } .stat-icon.ready { background: rgba(245,158,11,0.12); color: var(--warning); } .stat-icon.finish { background: rgba(59,130,246,0.12); color: var(--info); }
-    .stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1; font-family: 'JetBrains Mono', monospace; }
-    .stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 2px; }
-    
-    .form-section-title { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.85rem; margin-top: 0.25rem; display: flex; align-items: center; gap: 8px; }
-    .form-section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
-    .form-group { display: flex; flex-direction: column; gap: 5px; }
-    .form-label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); } .form-label .required { color: var(--danger); }
-    .form-input, .form-select, .form-textarea { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 12px; font-size: 0.85rem; font-family: inherit; color: var(--text-primary); outline: none; width: 100%; }
-    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-dim); }
-    .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
-    
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 22px; border-radius: var(--radius); border: 1px solid transparent; font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; }
-    .btn-primary { background: linear-gradient(135deg, var(--accent), #00a88a); color: #0b1120; box-shadow: 0 0 20px rgba(0,212,170,0.2); }
-    .btn-primary:hover { box-shadow: 0 0 30px rgba(0,212,170,0.4); transform: translateY(-1px); }
-    .btn-secondary { background: transparent; border-color: var(--border); color: var(--text-secondary); } .btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
-    .btn-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--danger); } .btn-danger:hover { background: rgba(239,68,68,0.2); }
-    .btn-sm { padding: 6px 14px; font-size: 0.78rem; } .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-download { background: linear-gradient(135deg, #1d6f42, #1a5c38); color: #ffffff; border: 1px solid rgba(29,111,66,0.4); }
-    
-    .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; position: relative; }
-    .table-toolbar { padding: 1.15rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-    .table-toolbar h2 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; } .table-toolbar h2 i { color: var(--accent); }
-    .toolbar-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 14px; }
-    .search-box:focus-within { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-dim); } .search-box i { color: var(--text-muted); font-size: 0.85rem; }
-    .search-box input { background: none; border: none; outline: none; color: var(--text-primary); font-family: inherit; font-size: 0.85rem; padding: 9px 0; width: 200px; }
-    .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-    .chip { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-family: inherit; font-size: 0.73rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-    .chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
-    
-    .table-wrapper { overflow-x: auto; max-height: 65vh; overflow-y: auto; }
-    .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .data-table thead th { padding: 11px 13px; text-align: left; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; background: var(--table-head-bg); border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; z-index: 5; }
-    .data-table tbody tr { border-bottom: 1px solid rgba(128,128,128,0.15); transition: background 0.2s ease; } .data-table tbody tr:hover { background: var(--row-hover); }
-    .data-table tbody td { padding: 10px 13px; color: var(--text-secondary); white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
-    .data-table tbody td.name-cell { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500; color: var(--text-primary); }
-    .data-table tbody td.editable-cell { cursor: pointer; } .data-table tbody td.editable-cell:hover { color: var(--accent); }
-    
-    .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .status-badge.pending { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); } .status-badge.proses { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.2); } .status-badge.ready { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); } .status-badge.finish { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; } .status-badge.pending .status-dot { background: #f87171; } .status-badge.proses .status-dot { background: #c084fc; } .status-badge.ready .status-dot { background: #fbbf24; } .status-badge.finish .status-dot { background: #60a5fa; }
-    
-    .action-btns { display: flex; gap: 5px; } .action-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-size: 0.7rem; }
-    .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); } .action-btn.delete:hover { border-color: var(--danger); color: var(--danger); background: rgba(239,68,68,0.1); } .action-btn.delete.disabled-delete { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
-    .empty-state { padding: 3rem 2rem; text-align: center; } .empty-state i { font-size: 2.5rem; color: var(--text-muted); margin-bottom: 0.75rem; opacity: 0.4; } .empty-state p { color: var(--text-muted); font-size: 0.85rem; }
-    
-    .modal-overlay { display: none; position: fixed; inset: 0; background: var(--overlay-bg); backdrop-filter: blur(6px); z-index: 1000; align-items: center; justify-content: center; padding: 2rem; }
-    .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
-    .modal { background: var(--modal-bg); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 100%; max-width: 520px; box-shadow: var(--shadow); animation: modalSlide 0.3s ease-out; max-height: 90vh; display: flex; flex-direction: column; }
-    .modal.modal-lg { max-width: 800px; }
-    .modal-header { padding: 1.15rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-    .modal-header h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; } .modal-header h3 i { color: var(--accent); }
-    .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 4px; } .modal-close:hover { color: var(--text-primary); }
-    .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.15rem; overflow-y: auto; }
-    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0; }
-    
-    .toast-container { position: fixed; top: 80px; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-    .toast { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius); background: var(--toast-bg); border: 1px solid var(--border); box-shadow: var(--shadow); font-size: 0.85rem; animation: toastIn 0.4s ease-out; min-width: 300px; }
-    .toast.success { border-left: 3px solid var(--success); } .toast.error { border-left: 3px solid var(--danger); } .toast.info { border-left: 3px solid var(--info); } .toast.warning { border-left: 3px solid var(--warning); }
-    .toast.removing { animation: toastOut 0.3s ease-in forwards; }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } } @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
-    
-    .spinner { width: 18px; height: 18px; border: 2px solid var(--spinner-track); border-top-color: var(--spinner-top); border-radius: 50%; animation: spin 0.7s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 10; align-items: center; justify-content: center; }
-    .loading-overlay.active { display: flex; } .loading-overlay .spinner { width: 32px; height: 32px; border-color: var(--spinner-accent-track); border-top-color: var(--accent); }
-    
-    .success-overlay { display: none; position: fixed; inset: 0; background: var(--overlay-bg); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; }
-    .success-overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
-    .success-card { background: var(--modal-bg); border: 2px solid var(--accent); border-radius: 20px; padding: 2.5rem; text-align: center; box-shadow: 0 0 60px rgba(0,212,170,0.2); animation: successPop 0.5s ease-out; }
-    @keyframes successPop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
-    .success-icon { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #00a88a); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 2rem; color: #0b1120; }
-    
-    .table-footer { padding: 0.85rem 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); }
-    @media (max-width: 768px) { .navbar { padding: 0 1rem; } .navbar-inner { height: auto; padding: 0.75rem 0; flex-wrap: wrap; gap: 0.75rem; } .main-container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } .stats-row { grid-template-columns: repeat(2, 1fr); } .table-toolbar { flex-direction: column; align-items: stretch; } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-header h2 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .modal-header h2 i { color: var(--accent); }
+    .modal-close { background: var(--bg2); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 14px; transition: all 0.2s; }
+    .modal-close:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ====== CONFIG, FORM, BUTTONS ====== */
+    .config-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: none; }
+    .config-bar.show { display: block; animation: slideDown 0.3s ease; }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+    .config-bar label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; }
+    .config-bar input { width: 100%; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .config-bar input:focus { outline: none; border-color: var(--accent); }
+    .cfg-btns { display: flex; gap: 8px; margin-top: 12px; }
+    .cfg-btns button { padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; }
+    .btn-cfg-save { background: var(--accent); color: #fff; }
+    .btn-cfg-cancel { background: var(--card2); color: var(--muted); }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+    .form-group label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-group input, .form-group select { width: 100%; padding: 11px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s, background 0.3s; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(233,69,96,0.15); }
+    .form-group select option { background: var(--card); color: var(--fg); }
+    .btn-add { margin-top: 20px; width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), #c23152); color: #fff; border: none; border-radius: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(233,69,96,0.3); }
+    .btn-add:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .current-price-section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .current-price-section label { font-size: 14px; font-weight: 500; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .current-price-section label i { color: var(--green); }
+    .current-price-section input { flex: 1; min-width: 160px; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+    .current-price-section input:focus { outline: none; border-color: var(--green); }
+
+    /* ====== SUMMARY CARDS ====== */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .summary-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; position: relative; overflow: hidden; transition: background 0.3s, border-color 0.3s, transform 0.2s; }
+    .summary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--shadow); }
+    .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .sc-koin::before { background: linear-gradient(90deg, var(--gold), #d4a017); }
+    .sc-modal::before { background: linear-gradient(90deg, var(--accent), #c23152); }
+    .sc-avg::before { background: linear-gradient(90deg, var(--green), var(--green2)); }
+    .sc-pnl::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+    .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .card-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .card-sub { font-size: 12px; color: var(--muted); margin-top: 6px; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px; }
+    .t-g { color: var(--green); } .t-r { color: var(--accent); } .t-y { color: var(--gold); } .t-f { color: var(--fg); }
+
+    .pnl-bar { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .pnl-bar h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .pnl-bar h3 i { color: var(--green); }
+    .pnl-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .pnl-row:last-child { border-bottom: none; }
+    .pnl-label { color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .pnl-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .pnl-progress { margin-top: 16px; height: 8px; background: var(--bg2); border-radius: 100px; overflow: hidden; }
+    .pnl-fill { height: 100%; border-radius: 100px; transition: width 0.6s ease, background 0.3s; min-width: 2px; }
+
+    .trend-icon { font-size: 16px; display: inline-flex; align-items: center; justify-content: center; }
+    .trend-up { color: var(--green); animation: pulseUp 2s infinite; }
+    .trend-down { color: var(--accent); animation: pulseDown 2s infinite; }
+    .trend-flat { color: var(--muted); }
+    @keyframes pulseUp { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes pulseDown { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+    /* ====== TABLE ====== */
+    .table-section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+    .table-top { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .table-top h2 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .table-top h2 i { color: var(--gold); }
+    .table-cnt { font-size: 12px; color: var(--muted); background: var(--bg2); padding: 4px 12px; border-radius: 100px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); background: var(--card2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    tbody tr:hover { background: rgba(233,69,96,0.04); }
+    tbody td { padding: 12px 14px; font-size: 13px; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .td-coin { background: rgba(240,185,11,0.12); color: var(--gold); padding: 3px 10px; border-radius: 6px; font-weight: 600; font-size: 11px; display: inline-block; }
+    .td-date { color: var(--muted); } .td-total { color: var(--accent2); font-weight: 600; } .td-jumlah { color: var(--green); font-weight: 600; }
+    .btn-del { background: rgba(233,69,96,0.1); color: var(--accent); border: 1px solid rgba(233,69,96,0.2); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: 'Space Grotesk', sans-serif; }
+    .btn-del:hover { background: var(--accent); color: #fff; }
+    .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); }
+    .empty-state i { font-size: 44px; margin-bottom: 14px; opacity: 0.3; display: block; }
+    .empty-state p { font-size: 14px; }
+
+    .toast-box { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s ease; box-shadow: 0 8px 30px var(--shadow); }
+    .toast.success { background: #0a2e1f; border: 1px solid var(--green); color: var(--green2); }
+    .toast.error { background: #2e0a14; border: 1px solid var(--accent); color: var(--accent2); }
+    .toast.info { background: #0a1a2e; border: 1px solid #3b82f6; color: #60a5fa; }
+    [data-theme="light"] .toast.success { background: #e6fff5; color: #00855d; }
+    [data-theme="light"] .toast.error { background: #fff0f3; color: #c23152; }
+    [data-theme="light"] .toast.info { background: #eff6ff; color: #2563eb; }
+    @keyframes toastIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+
+    /* ====== FLOATING ACTION BUTTON (FAB) ====== */
+    .fab-container { position: fixed; bottom: 24px; right: 24px; z-index: 90; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+    .fab-main {
+      width: 56px; height: 56px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, var(--accent), #c23152); color: #fff;
+      font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .fab-main:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.5); }
+    .fab-main i { transition: transform 0.3s ease; }
+    .fab-main.active i { transform: rotate(45deg); } /* Ubah + menjadi × */
+
+    .fab-settings {
+      width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border);
+      background: var(--card); color: var(--muted); font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .fab-settings:hover { color: var(--fg); border-color: var(--muted); }
+
+    .footer { text-align: center; padding: 24px 0; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); }
+    .footer a { color: var(--gold); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .header { flex-wrap: wrap; gap: 12px; padding: 12px 16px; }
+      .header-actions { margin-left: 0; width: 100%; justify-content: flex-start; }
+      .header-text h1 { font-size: 18px; }
+      .card-value { font-size: 17px !important; }
+      .current-price-section { flex-direction: column; align-items: flex-start; }
+      .current-price-section input { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
   </style>
 </head>
 <body>
 
-  <div class="login-wrapper" id="loginWrapper">
-    <div class="login-card">
-      <div class="login-header"><div class="login-icon"><i class="fas fa-microchip"></i></div><h2>OrderKomponen</h2><p>Masukkan kredensial untuk mengakses sistem</p></div>
-      <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
-        <div class="login-input-group"><input type="text" class="login-input" id="loginUser" placeholder="Username" required><i class="fas fa-user"></i></div>
-        <div class="login-input-group"><input type="password" class="login-input" id="loginPass" placeholder="Password" required><i class="fas fa-lock"></i></div>
-        <div class="login-error" id="loginError"></div>
-        <button type="submit" class="login-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Masuk</button>
-      </form>
+  <div class="bg-grid"></div>
+  <div class="particles" id="particles"></div>
+  <div class="toast-box" id="toastBox"></div>
+
+  <!-- FLOATING ACTION BUTTONS -->
+  <div class="fab-container">
+    <button class="fab-settings" id="settingsBtn" aria-label="Pengaturan API"><i class="fas fa-cog"></i></button>
+    <button class="fab-main" id="fabAdd" aria-label="Tambah Transaksi"><i class="fas fa-plus"></i></button>
+  </div>
+
+  <!-- MODAL TAMBAH TRANSAKSI -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle"></i> Tambah Transaksi</h2>
+        <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label for="inCoin">Coin</label><select id="inCoin"><option value="DOGE" selected>DOGE</option><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="SOL">SOL</option><option value="XRP">XRP</option><option value="ADA">ADA</option></select></div>
+        <div class="form-group"><label for="inDate">Tanggal Beli</label><input type="date" id="inDate" /></div>
+        <div class="form-group"><label for="inPrice">Harga Satuan (Rp)</label><input type="number" id="inPrice" placeholder="0" min="0" step="any" /></div>
+        <div class="form-group"><label for="inTotal">Total Belanja (Rp)</label><input type="number" id="inTotal" placeholder="0" min="0" step="any" /></div>
+      </div>
+      <button class="btn-add" id="btnAdd"><i class="fas fa-plus"></i> Simpan Transaksi</button>
     </div>
   </div>
 
-  <div class="app-wrapper" id="appWrapper">
-    <nav class="navbar"><div class="navbar-inner"><a class="logo" href="#"><div class="logo-icon"><i class="fas fa-microchip"></i></div><div class="logo-text">Order<span>Komponen</span></div></a><div class="nav-right"><button class="btn btn-primary btn-sm" onclick="openInputModal()"><i class="fas fa-plus-circle"></i> Input Order</button><span class="last-sync" id="lastSync">--:--:--</span><div class="sync-dot" id="syncDot"></div><button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-sun icon-sun"></i><i class="fas fa-moon icon-moon"></i></button><button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button></div></div></nav>
-    
-    <main class="main-container">
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-icon total"><i class="fas fa-clipboard-list"></i></div><div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Order</div></div></div>
-        <div class="stat-card"><div class="stat-icon pending"><i class="fas fa-clock"></i></div><div><div class="stat-value" id="statPending">0</div><div class="stat-label">Pending</div></div></div>
-        <div class="stat-card"><div class="stat-icon proses"><i class="fas fa-spinner"></i></div><div><div class="stat-value" id="statProses">0</div><div class="stat-label">Proses</div></div></div>
-        <div class="stat-card"><div class="stat-icon ready"><i class="fas fa-box"></i></div><div><div class="stat-value" id="statReady">0</div><div class="stat-label">Ready</div></div></div>
-        <div class="stat-card"><div class="stat-icon finish"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="statFinish">0</div><div class="stat-label">Finish</div></div></div>
-      </div>
+  <div class="container">
 
-      <div class="table-card">
-        <div class="table-toolbar"><h2><i class="fas fa-database"></i> Database Order</h2><div class="toolbar-right"><div class="filter-chips"><button class="chip active" onclick="filterStatus('all', this)">Semua</button><button class="chip" onclick="filterStatus('PENDING', this)">PENDING</button><button class="chip" onclick="filterStatus('PROSES', this)">PROSES</button><button class="chip" onclick="filterStatus('READY', this)">READY</button><button class="chip" onclick="filterStatus('FINISH', this)">FINISH</button></div><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari order..." id="searchInput" oninput="debouncedSearch()"></div><button class="btn btn-download btn-sm" onclick="downloadExcel()"><i class="fas fa-file-excel"></i> Download</button></div></div>
-        <div class="table-wrapper">
-          <table class="data-table" id="dataTableEl" style="display:none;"><thead><tr><th>#</th><th>Status</th><th>Teknisi</th><th>Tgl Pengajuan</th><th>No. Service</th><th>Type (IDNO)</th><th>No. Serie</th><th>No Gudang</th><th>Nama Part</th><th>QTY</th><th>Prod.</th><th>Layanan</th><th>Nama Konsumen</th><th>No. HP</th><th>Tgl Order</th><th>No. Order</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tableBody"></tbody></table>
+    <header class="header" id="mainHeader">
+      <div class="coin-icon">D</div>
+      <div class="header-text">
+        <h1>Kalkulasi Pembelian DOGE</h1>
+        <p>Track harga rata-rata, total modal, dan profit/loss</p>
+      </div>
+      <div class="header-actions">
+        <div class="status-badge">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Memeriksa...</span>
         </div>
-        <div class="empty-state" id="emptyState" style="display:none;"><i class="fas fa-inbox"></i><p>Belum ada data order.</p></div>
-        <div class="table-footer" id="tableFooter" style="display:none;"><span>Menampilkan <strong id="rowCount">0</strong> dari <strong id="rowTotal">0</strong> order</span><span>Auto-refresh 15s</span></div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Ganti Tema Terang/Gelap">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
       </div>
-    </main>
-  </div>
+    </header>
 
-  <div class="modal-overlay" id="inputModal">
-    <div class="modal modal-lg" style="position:relative;">
-      <div class="loading-overlay" id="formLoading"><div class="spinner"></div></div>
-      <div class="modal-header"><h3><i class="fas fa-file-invoice"></i> Input Order Komponen</h3><button class="modal-close" onclick="closeInputModal()"><i class="fas fa-times"></i></button></div>
-      <div class="modal-body">
-        <form id="orderForm" onsubmit="handleSubmit(event)" novalidate>
-          <div class="form-section-title">Informasi Teknisi & Service</div>
-          <div class="form-grid">
-            <div class="form-group"><label class="form-label">Teknisi <span class="required">*</span></label><select class="form-select" name="TEKNISI" required><option value="">-- Pilih --</option><option value="YANDRI OTTU">YANDRI OTTU</option><option value="HARMINDO LAMMA">HARMINDO LAMMA</option><option value="INOSENCIUS FA'OT">INOSENCIUS FA'OT</option><option value="RIZALDI ABDULLAH">RIZALDI ABDULLAH</option><option value="KRISTIAN OPENG">KRISTIAN OPENG</option><option value="MUHAMMAD FAUZI">MUHAMMAD FAUZI</option></select></div>
-            <div class="form-group"><label class="form-label">Tgl Pengajuan <span class="required">*</span></label><input class="form-input" type="date" name="TGL PENGAJUAN ORD" id="inpTglPengajuan" required></div>
-            <div class="form-group"><label class="form-label">No. Service Case</label><input class="form-input" type="text" name="NO. SERVICE CASE"></div>
-          </div>
-          <div class="form-section-title">Informasi Komponen</div>
-          <div class="form-grid">
-            <div class="form-group"><label class="form-label">Type (IDNO) <span class="required">*</span></label><input class="form-input" type="text" name="TYPE (IDNO)" required></div>
-            <div class="form-group"><label class="form-label">No. Serie</label><input class="form-input" type="text" name="NO. SERIE"></div>
-            <div class="form-group"><label class="form-label">No Gudang</label><input class="form-input" type="text" name="NO GUDANG"></div>
-            <div class="form-group"><label class="form-label">Nama Part <span class="required">*</span></label><input class="form-input" type="text" name="NAMA PART" required></div>
-            <div class="form-group"><label class="form-label">QTY <span class="required">*</span></label><input class="form-input" type="number" name="QTY" min="1" required></div>
-            <div class="form-group"><label class="form-label">Prod. <span class="required">*</span></label><select class="form-select" name="PROD." required><option value="">-- Pilih --</option><option value="AV">AV</option><option value="HA">HA</option><option value="EV">EV</option></select></div>
-            <div class="form-group"><label class="form-label">Layanan <span class="required">*</span></label><select class="form-select" name="LAYANAN" required><option value="">-- Pilih --</option><option value="KONSUMEN LANGSUNG">KONSUMEN LANGSUNG</option><option value="KUNJUNGAN TOKO">KUNJUNGAN TOKO</option><option value="KUNJUNGAN CALL">KUNJUNGAN CALL</option><option value="KUNJUNGAN LUAR KOTA">KUNJUNGAN LUAR KOTA</option><option value="LUAR KOTA PSR FLORES">LUAR KOTA PSR FLORES</option></select></div>
-          </div>
-          <div class="form-section-title">Informasi Konsumen</div>
-          <div class="form-grid">
-            <div class="form-group"><label class="form-label">Nama Konsumen <span class="required">*</span></label><input class="form-input" type="text" name="NAMA KONSUMEN" required></div>
-            <div class="form-group"><label class="form-label">No. HP <span class="required">*</span></label><input class="form-input" type="text" inputmode="numeric" name="NO. HP" id="inpNoHp" placeholder="081234567890" required></div>
-          </div>
-        </form>
+    <div class="config-bar" id="configBar">
+      <label for="apiUrlInput">Google Apps Script Web App URL</label>
+      <input type="url" id="apiUrlInput" placeholder="https://script.google.com/macros/s/xxxx/exec" />
+      <div class="cfg-btns">
+        <button class="btn-cfg-save" id="cfgSave">Simpan & Test</button>
+        <button class="btn-cfg-cancel" id="cfgCancel">Batal</button>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="resetForm()"><i class="fas fa-eraser"></i> Reset</button><button type="submit" form="orderForm" class="btn btn-primary btn-sm" id="submitBtn"><i class="fas fa-paper-plane"></i> Simpan</button></div>
     </div>
-  </div>
 
-  <div class="modal-overlay" id="editModal">
-    <div class="modal">
-      <div class="modal-header"><h3><i class="fas fa-edit"></i> Edit Order</h3><button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button></div>
-      <div class="modal-body">
-        <input type="hidden" id="modalRowIndex">
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="modalStatus"><option value="PENDING">PENDING</option><option value="PROSES">PROSES</option><option value="READY">READY</option><option value="FINISH">FINISH</option></select></div>
-        <div class="form-group"><label class="form-label">Tgl Order</label><input class="form-input" type="date" id="modalTglOrder"></div>
-        <div class="form-group"><label class="form-label">No. Order</label><input class="form-input" type="text" id="modalNoOrder"></div>
-        <div class="form-group"><label class="form-label">Keterangan</label><textarea class="form-textarea" id="modalKeterangan"></textarea></div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeEditModal()">Batal</button><button class="btn btn-primary btn-sm" onclick="submitUpdate()" id="modalSaveBtn"><i class="fas fa-save"></i> Simpan</button></div>
+    <section class="current-price-section" aria-label="Harga saat ini">
+      <label><i class="fas fa-chart-line"></i> Harga Saat Ini (Rp)</label>
+      <input type="number" id="curPrice" placeholder="Masukkan harga terkini" min="0" step="any" />
+    </section>
+
+    <div class="summary-grid">
+      <div class="summary-card sc-koin"><div class="card-label"><i class="fas fa-coins"></i> Total Koin</div><div class="card-value t-y" id="sKoin">0</div></div>
+      <div class="summary-card sc-modal"><div class="card-label"><i class="fas fa-wallet"></i> Total Modal</div><div class="card-value t-f" id="sModal">Rp 0</div></div>
+      <div class="summary-card sc-avg"><div class="card-label"><i class="fas fa-calculator"></i> Harga Rata-rata</div><div class="card-value t-g" id="sAvg">Rp 0</div></div>
+      <div class="summary-card sc-pnl"><div class="card-label"><i class="fas fa-chart-pie"></i> Profit / Loss</div><div class="card-value" id="sPnl">Rp 0</div><div class="card-sub" id="sPnlPct">0%</div></div>
     </div>
+
+    <section class="pnl-bar" id="pnlBar" style="display:none;" aria-label="Detail P/L">
+      <h3><i class="fas fa-signal"></i> Detail Perhitungan</h3>
+      <div class="pnl-row"><span class="pnl-label"><i class="fas fa-coins"></i> Nilai Investasi Saat Ini</span><span class="pnl-val t-f" id="pnCur">Rp 0</span></div>
+      <div class="pnl-row"><span class="pnl-label"><i class="fas fa-wallet"></i> Total Modal Awal</span><span class="pnl-val t-f" id="pnCost">Rp 0</span></div>
+      <div class="pnl-row"><span class="pnl-label"><i class="fas fa-chart-line"></i> Profit / Loss</span><span class="pnl-val" id="pnAmt">Rp 0</span></div>
+      <div class="pnl-row"><span class="pnl-label"><i class="fas fa-percent"></i> Persentase</span><span class="pnl-val" id="pnPct">0%</span></div>
+      <div class="pnl-progress"><div class="pnl-fill" id="pnFill" style="width:50%;background:var(--muted);"></div></div>
+    </section>
+
+    <section class="table-section" aria-label="Riwayat transaksi">
+      <div class="table-top">
+        <h2><i class="fas fa-list-ul"></i> Riwayat Transaksi</h2>
+        <span class="table-cnt" id="tCnt">0 transaksi</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>No</th><th>Coin</th><th>Tanggal</th><th>Harga Satuan</th><th>Total Belanja</th><th>Jumlah Koin</th><th>Status P/L</th><th>Aksi</th></tr></thead>
+          <tbody id="tBody"><tr><td colspan="8"><div class="empty-state"><i class="fas fa-inbox"></i><p>Belum ada transaksi. Klik tombol + merah untuk menambahkan.</p></div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">Data tersimpan di <a href="https://docs.google.com/spreadsheets/d/1Sb0ao6UtW-pk_NzbADRyyOgGBImhJYfHdoMCpYffHuI/edit" target="_blank">Google Sheet</a> &mdash; Kalkulasi Pembelian DOGE</footer>
   </div>
 
-  <div class="success-overlay" id="successOverlay"><div class="success-card"><div class="success-icon"><i class="fas fa-check"></i></div><h3>Berhasil Disimpan!</h3><p>Data order baru tersimpan di Google Sheets.</p><button class="btn btn-primary" onclick="closeSuccess()"><i class="fas fa-check"></i> Selesai</button></div></div>
-  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbx5QjyBkaENczC_99kE5QD9Kd37PEl3pSmkFH-SXHXnn_pPg1yQYPk41-XXtt_R2uCo/exec';
+    let API_URL = localStorage.getItem('gs_api_url') || DEFAULT_API_URL;
+    let transactions = [];
+    const $ = id => document.getElementById(id);
 
-   <script>
-    // ==========================================================
-    // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
-    // ==========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbx6YJ0aucjAGVoQj6y0a044eWvkvXZlC7okNENtS6ZRwLB5l9VKI4qH8r-4pbJyF4_lhg/exec';
-    
-    let allOrders=[], currentFilter='all', autoRefreshInterval=null, isLoadingData=false, isFirstLoad=true, isSubmitting=false;
-    const AUTH_KEY = 'orderSystemAuth';
-    
-    // Auth System
-    function checkAuth() {
-      const isAuth = localStorage.getItem(AUTH_KEY) === 'true';
-      document.getElementById('loginWrapper').classList.toggle('hidden', isAuth);
-      document.getElementById('appWrapper').classList.toggle('visible', isAuth);
-      return isAuth;
+    // ====== SISTEM TEMA ======
+    const themeToggle = $('themeToggle'); const themeIcon = $('themeIcon'); const htmlEl = document.documentElement;
+    function getPreferredTheme() { const saved = localStorage.getItem('theme'); if (saved) return saved; return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+    function applyTheme(theme) { if (theme === 'light') { htmlEl.setAttribute('data-theme', 'light'); themeIcon.className = 'fas fa-sun'; } else { htmlEl.removeAttribute('data-theme'); themeIcon.className = 'fas fa-moon'; } localStorage.setItem('theme', theme); }
+    applyTheme(getPreferredTheme());
+    themeToggle.addEventListener('click', () => { const current = htmlEl.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; applyTheme(current === 'light' ? 'dark' : 'light'); });
+
+    // ====== MODAL & FAB LOGIC ======
+    const fabAdd = $('fabAdd');
+    const modalOverlay = $('modalOverlay');
+    const modalClose = $('modalClose');
+
+    function openModal() {
+      modalOverlay.classList.add('active');
+      fabAdd.classList.add('active');
+      $('inDate').value = new Date().toISOString().slice(0, 10);
     }
-    
-    function handleLogin(e) {
-      e.preventDefault();
-      if (document.getElementById('loginUser').value === 'admin' && document.getElementById('loginPass').value === 'kupang123') {
-        document.getElementById('loginError').textContent = '';
-        setTimeout(() => { localStorage.setItem(AUTH_KEY, 'true'); checkAuth(); initApp(); document.getElementById('loginForm').reset(); }, 800);
-      } else { document.getElementById('loginError').textContent = 'Username atau Password salah!'; }
-    }
-    
-    function handleLogout() { localStorage.removeItem(AUTH_KEY); checkAuth(); clearInterval(autoRefreshInterval); showToast('Berhasil logout!', 'info'); }
-    function toggleTheme() { const h=document.documentElement, n=h.getAttribute('data-theme')==='dark'?'light':'dark'; h.setAttribute('data-theme',n); localStorage.setItem('theme',n); }
-    (function initTheme(){const s=localStorage.getItem('theme');if(s)document.documentElement.setAttribute('data-theme',s);})();
-    
-    function getStatusClass(s){s=(s||'').toUpperCase();return s==='PENDING'?'pending':s==='PROSES'?'proses':s==='READY'?'ready':s==='FINISH'?'finish':'pending';}
-    function canDelete(s){return(s||'').toUpperCase()==='FINISH';}
-    function escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
-    
-    // FIX: Helper Aman Case-Insensitive & Auto-Convert Object Date
-    function getVal(obj, key) {
-      if (!obj) return '';
-      let val = '';
-      if (obj[key] !== undefined) { val = obj[key]; } 
-      else {
-        const lowerKey = key.toLowerCase();
-        for (let k in obj) { if (k.toLowerCase() === lowerKey) { val = obj[k]; break; } }
-      }
-      // Jika ini Object Date dari Google Sheets, ubah ke String YYYY-MM-DD
-      if (val instanceof Date) {
-        const yr = val.getFullYear(); const mo = String(val.getMonth()+1).padStart(2,'0'); const da = String(val.getDate()).padStart(2,'0');
-        return yr+'-'+mo+'-'+da;
-      }
-      return val;
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      fabAdd.classList.remove('active');
     }
 
-    // FIX: Formatter Tanggal Super Aman
-    function formatDateDisplay(d){ 
-      if(!d) return '-'; 
-      if(typeof d === 'object' && d instanceof Date) {
-        const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
-        return da+'/'+mo+'/'+yr;
-      }
-      if(typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
-      if(typeof d === 'string' && d.match(/^\d{2}\/\d{2}\/\d{4}$/)) return d;
-      return String(d);
+    fabAdd.addEventListener('click', openModal);
+    modalClose.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+    // ====== FREEZE PANEL LOGIC ======
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) $('mainHeader').classList.add('is-scrolled');
+      else $('mainHeader').classList.remove('is-scrolled');
+    });
+
+    // ====== FORMAT ANGKA ======
+    function fRp(n) { if (n == null || isNaN(n)) return 'Rp 0'; const abs = Math.abs(n); const s = abs.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); return (n < 0 ? '-' : '') + 'Rp ' + s; }
+    function fKoin(n) { if (!n || isNaN(n)) return '0'; return n.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 6 }); }
+    function getTrendIcon(buyPrice, curPrice) {
+      if (!curPrice || curPrice <= 0 || !buyPrice || buyPrice <= 0) return '<span class="trend-icon trend-flat"><i class="fas fa-minus"></i></span>';
+      if (curPrice > buyPrice) return '<span class="trend-icon trend-up"><i class="fas fa-caret-up"></i></span>';
+      else if (curPrice < buyPrice) return '<span class="trend-icon trend-down"><i class="fas fa-caret-down"></i></span>';
+      return '<span class="trend-icon trend-flat"><i class="fas fa-minus"></i></span>';
+    }
+    function toast(msg, type = 'info') { const box = $('toastBox'); const el = document.createElement('div'); el.className = 'toast ' + type; const ic = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'; el.innerHTML = '<i class="fas ' + ic + '"></i> ' + msg; box.appendChild(el); setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(40px)'; el.style.transition = '0.3s'; setTimeout(() => el.remove(), 300); }, 3500); }
+
+    // ====== KONEKSI GOOGLE SHEET ======
+    async function checkConn() { const dot = $('statusDot'); const txt = $('statusText'); dot.className = 'status-dot'; txt.textContent = 'Memeriksa koneksi...'; try { const r = await fetch(API_URL + '?action=ping', { redirect: 'follow' }); const j = await r.json(); if (j.status === 'success') { dot.className = 'status-dot ok'; txt.textContent = 'Terhubung ke Sheet'; return true; } throw new Error(j.message); } catch (e) { dot.className = 'status-dot'; txt.textContent = 'Offline — data lokal'; return false; } }
+    async function fetchData() { try { const r = await fetch(API_URL + '?action=read', { redirect: 'follow' }); const j = await r.json(); if (j.status === 'success') { transactions = j.data || []; render(); calc(); return; } } catch (e) { console.warn('Fetch gagal:', e); } transactions = JSON.parse(localStorage.getItem('doge_tx') || '[]'); render(); calc(); }
+    async function addTx(tx) { const p = new URLSearchParams({ action: 'add', coin: tx.coin, tanggal: tx.tanggal, harga: tx.harga, total: tx.total }); try { const r = await fetch(API_URL + '?' + p.toString(), { redirect: 'follow' }); const j = await r.json(); if (j.status === 'success') { toast('Transaksi disimpan ke Google Sheet', 'success'); await fetchData(); return true; } throw new Error(j.message); } catch (e) { console.warn('Simpan lokal:', e); tx.id = 'TX-' + Date.now().toString(36).toUpperCase(); tx.timestamp = new Date().toISOString(); tx.jumlah = tx.harga > 0 ? tx.total / tx.harga : 0; transactions.push(tx); saveLocal(); toast('Disimpan lokal (Sheet tidak terhubung)', 'error'); render(); calc(); return true; } }
+    async function delTx(id) { try { const p = new URLSearchParams({ action: 'delete', id: id }); const r = await fetch(API_URL + '?' + p.toString(), { redirect: 'follow' }); const j = await r.json(); if (j.status === 'success') { toast('Transaksi dihapus dari Sheet', 'success'); await fetchData(); return; } } catch (e) { console.warn('Hapus lokal:', e); } transactions = transactions.filter(t => t.id !== id); saveLocal(); toast('Dihapus dari data lokal', 'info'); render(); calc(); }
+    function saveLocal() { localStorage.setItem('doge_tx', JSON.stringify(transactions)); }
+
+    // ====== RENDER TABEL ======
+    function render() {
+      const tbody = $('tBody'); const cur = parseFloat($('curPrice').value) || 0;
+      if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-inbox"></i><p>Belum ada transaksi. Klik tombol + merah untuk menambahkan.</p></div></td></tr>'; $('tCnt').textContent = '0 transaksi'; return; }
+      tbody.innerHTML = transactions.map((t, i) =>
+        '<tr><td style="color:var(--muted)">' + (i + 1) + '</td><td><span class="td-coin">' + (t.coin || 'DOGE') + '</span></td><td class="td-date">' + (t.tanggal || '-') + '</td><td>' + fRp(t.harga) + '</td><td class="td-total">' + fRp(t.total) + '</td><td class="td-jumlah">' + fKoin(t.jumlah) + '</td><td>' + getTrendIcon(Number(t.harga), cur) + '</td><td><button class="btn-del" onclick="handleDel(\'' + t.id + '\')"><i class="fas fa-trash-alt"></i></button></td></tr>'
+      ).join('');
+      $('tCnt').textContent = transactions.length + ' transaksi';
     }
 
-    let searchDebounceTimer;
-    function debouncedSearch(){clearTimeout(searchDebounceTimer);searchDebounceTimer=setTimeout(renderTable,250);}
-    
-    // FIX: Input Modal langsung set tanggal hari ini saat dibuka
-    function openInputModal(){
-      document.getElementById('orderForm').reset();
-      // Ambil tanggal komputer saat ini
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('inpTglPengajuan').value = today;
-      document.getElementById('inputModal').classList.add('active');
+    // ====== KALKULASI ======
+    function calc() {
+      let tKoin = 0, tModal = 0;
+      transactions.forEach(t => { tKoin += Number(t.jumlah) || 0; tModal += Number(t.total) || 0; });
+      const avg = tKoin > 0 ? tModal / tKoin : 0; const cur = parseFloat($('curPrice').value) || 0;
+      const curVal = tKoin * cur; const pnl = curVal - tModal; const pnlPct = tModal > 0 ? (pnl / tModal) * 100 : 0;
+      $('sKoin').textContent = fKoin(tKoin); $('sModal').textContent = fRp(tModal); $('sAvg').textContent = fRp(avg);
+      const pnlEl = $('sPnl'); const pctEl = $('sPnlPct');
+      pnlEl.innerHTML = fRp(pnl) + ' ' + getTrendIcon(avg, cur); pnlEl.className = 'card-value ' + (pnl >= 0 ? 't-g' : 't-r');
+      pctEl.innerHTML = (pnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '% ' + getTrendIcon(avg, cur); pctEl.style.color = pnl >= 0 ? 'var(--green)' : 'var(--accent)';
+      if (cur > 0 && tKoin > 0) {
+        $('pnlBar').style.display = 'block'; $('pnCur').innerHTML = fRp(curVal); $('pnCost').innerHTML = fRp(tModal);
+        $('pnAmt').innerHTML = fRp(pnl) + ' ' + getTrendIcon(avg, cur); $('pnAmt').className = 'pnl-val ' + (pnl >= 0 ? 't-g' : 't-r');
+        $('pnPct').innerHTML = (pnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '% ' + getTrendIcon(avg, cur); $('pnPct').style.color = pnl >= 0 ? 'var(--green)' : 'var(--accent)';
+        const prog = Math.max(0, Math.min(100, 50 + pnlPct / 2)); const fill = $('pnFill'); fill.style.width = prog + '%';
+        fill.style.background = pnl >= 0 ? 'linear-gradient(90deg,var(--green),var(--green2))' : 'linear-gradient(90deg,var(--accent),#ff6b81)';
+      } else { $('pnlBar').style.display = 'none'; }
+      render();
     }
 
-    function closeInputModal(){document.getElementById('inputModal').classList.remove('active');}
-    function closeEditModal(){document.getElementById('editModal').classList.remove('active');}
-    function closeDeleteModal(){const m=document.getElementById('deleteConfirmModal');if(m)m.remove();}
-    function closeSuccess(){document.getElementById('successOverlay').classList.remove('active');}
+    // ====== EVENT HANDLERS ======
+    $('btnAdd').addEventListener('click', async () => {
+      const coin = $('inCoin').value; const tanggal = $('inDate').value;
+      const harga = parseFloat($('inPrice').value); const total = parseFloat($('inTotal').value);
+      if (!tanggal) { toast('Tanggal harus diisi', 'error'); $('inDate').focus(); return; }
+      if (!harga || harga <= 0) { toast('Harga satuan harus lebih dari 0', 'error'); $('inPrice').focus(); return; }
+      if (!total || total <= 0) { toast('Total belanja harus lebih dari 0', 'error'); $('inTotal').focus(); return; }
+      const btn = $('btnAdd'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+      const ok = await addTx({ coin, tanggal, harga, total });
+      if (ok) { $('inPrice').value = ''; $('inTotal').value = ''; closeModal(); } // Tutup modal jika sukses
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Simpan Transaksi';
+    });
 
-    document.getElementById('inpNoHp').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); });
+    function handleDel(id) { if (!id) return; const btn = event.target.closest('.btn-del'); if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true; } delTx(id); }
+    $('curPrice').addEventListener('input', calc);
+    $('settingsBtn').addEventListener('click', () => { const bar = $('configBar'); bar.classList.toggle('show'); if (bar.classList.contains('show')) { $('apiUrlInput').value = API_URL; $('apiUrlInput').focus(); } });
+    $('cfgSave').addEventListener('click', () => { const url = $('apiUrlInput').value.trim(); if (url) { API_URL = url; localStorage.setItem('gs_api_url', API_URL); $('configBar').classList.remove('show'); toast('API URL disimpan. Menguji koneksi...', 'info'); checkConn().then(ok => { if (ok) fetchData(); }); } });
+    $('cfgCancel').addEventListener('click', () => { $('configBar').classList.remove('show'); });
 
-    function handleSubmit(e){
-      e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
-      const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
-      for(let p of fd.entries()) { d[p[0]] = p[1].trim(); }
-      
-      const rf=['TEKNISI','TGL PENGAJUAN ORD','TYPE (IDNO)','NAMA PART','QTY','PROD.','LAYANAN','NAMA KONSUMEN','NO. HP'];
-      for(let i=0;i<rf.length;i++){if(!d[rf[i]]){showToast(rf[i]+' wajib diisi!','error');isSubmitting=false;return;}}
-      
-      const sb=document.getElementById('submitBtn'),fl2=document.getElementById('formLoading');
-      sb.disabled=true;sb.innerHTML='<div class="spinner"></div> Menyimpan...';fl2.classList.add('active');
-      
-      fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'save', data: d }) })
-      .then(res => res.json())
-      .then(r => { isSubmitting=false;sb.disabled=false;sb.innerHTML='<i class="fas fa-paper-plane"></i> Simpan';fl2.classList.remove('active'); if(r.success){closeInputModal();document.getElementById('successOverlay').classList.add('active');loadOrders();}else showToast(r.message||'Gagal','error'); })
-      .catch(er => { isSubmitting=false;sb.disabled=false;sb.innerHTML='<i class="fas fa-paper-plane"></i> Simpan';fl2.classList.remove('active'); showToast('Error Koneksi: '+er.message,'error'); });
-    }
-    
-    function resetForm(){
-      document.getElementById('orderForm').reset();
-      // Saat reset, tanggal otomatis di-set kembali ke hari ini
-      document.getElementById('inpTglPengajuan').value = new Date().toISOString().split('T')[0];
-    }
-    
-    function loadOrders(){ 
-      if(isLoadingData)return;isLoadingData=true;const sd=document.getElementById('syncDot');if(sd)sd.classList.add('syncing');
-      fetch(API_URL).then(res=>res.json()).then(r=>{
-        isLoadingData=false;if(sd)sd.classList.remove('syncing');
-        if(r.success){ allOrders=r.data; renderTable();updateStats();updateSyncTime(); }
-        else showToast('Gagal memuat data','error');
-      }).catch(er=>{isLoadingData=false;if(sd)sd.classList.remove('syncing');showToast('Koneksi error: '+er.message,'error');});
-    }
-    
-    function getFilteredData(){let f=allOrders;if(currentFilter!=='all')f=f.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()===currentFilter);const s=(document.getElementById('searchInput').value||'').toLowerCase();if(s)f=f.filter(o=>Object.values(o).some(v=>String(v).toLowerCase().includes(s)));return f;}
-    
-    function renderTable(){
-      const tb=document.getElementById('tableBody'),es=document.getElementById('emptyState'),ft=document.getElementById('tableFooter'),fd=getFilteredData(), te=document.getElementById('dataTableEl');
-      if(fd.length===0){ tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return; }
-      es.style.display='none'; ft.style.display='flex'; if(te) te.style.display='table';
-      document.getElementById('rowCount').textContent=fd.length; document.getElementById('rowTotal').textContent=allOrders.length;
-      
-      let h='';
-      for(let i=0;i<fd.length;i++){
-        const o=fd[i], s=getVal(o,'STATUS')||'PENDING', sc=getStatusClass(s), ri=o._rowIndex, dl=canDelete(s);
-        h+=`<tr>
-          <td>${i+1}</td><td><span class="status-badge ${sc}"><span class="status-dot"></span>${escapeHtml(s)}</span></td>
-          <td class="name-cell">${escapeHtml(getVal(o,'TEKNISI'))}</td><td>${formatDateDisplay(getVal(o,'TGL PENGAJUAN ORD'))}</td>
-          <td>${escapeHtml(getVal(o,'NO. SERVICE CASE'))}</td><td>${escapeHtml(getVal(o,'TYPE (IDNO)'))}</td><td>${escapeHtml(getVal(o,'NO. SERIE'))}</td>
-          <td>${escapeHtml(getVal(o,'NO GUDANG'))}</td><td class="name-cell">${escapeHtml(getVal(o,'NAMA PART'))}</td><td>${escapeHtml(getVal(o,'QTY'))}</td>
-          <td>${escapeHtml(getVal(o,'PROD.'))}</td><td>${escapeHtml(getVal(o,'LAYANAN'))}</td><td class="name-cell">${escapeHtml(getVal(o,'NAMA KONSUMEN'))}</td>
-          <td>${escapeHtml(getVal(o,'NO. HP'))}</td><td class="editable-cell" onclick="openEditModal(${ri})">${formatDateDisplay(getVal(o,'Tgl Order'))}</td>
-          <td class="editable-cell" onclick="openEditModal(${ri})" style="color:var(--accent);font-weight:600;">${escapeHtml(getVal(o,'No. Order'))||'-'}</td>
-          <td class="editable-cell" onclick="openEditModal(${ri})">${escapeHtml(getVal(o,'Keterangan Pemenuhan'))||'-'}</td>
-          <td><div class="action-btns"><button class="action-btn" onclick="openEditModal(${ri})"><i class="fas fa-pen"></i></button><button class="action-btn delete ${dl?'':'disabled-delete'}" onclick="${dl?`confirmDelete(${ri})`:`showDeleteWarning()`}"><i class="fas fa-trash"></i></button></div></td></tr>`;
-      }
-      tb.innerHTML=h;
-    }
-    
-    function showDeleteWarning(){showToast('Hapus hanya untuk status FINISH.','warning');}
-    
-    function openEditModal(ri){
-      const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
-      document.getElementById('modalRowIndex').value=ri;
-      document.getElementById('modalStatus').value=(getVal(o,'STATUS')||'PENDING').toUpperCase();
-      document.getElementById('modalTglOrder').value=getVal(o,'Tgl Order')||'';
-      document.getElementById('modalNoOrder').value=getVal(o,'No. Order')||'';
-      document.getElementById('modalKeterangan').value=getVal(o,'Keterangan Pemenuhan')||'';
-      document.getElementById('editModal').classList.add('active');
-    }
-    
-    function submitUpdate(){
-      const ri=parseInt(document.getElementById('modalRowIndex').value),
-            d={status:document.getElementById('modalStatus').value,tglOrder:document.getElementById('modalTglOrder').value,noOrder:document.getElementById('modalNoOrder').value,keterangan:document.getElementById('modalKeterangan').value},
-            sb=document.getElementById('modalSaveBtn');
-      sb.disabled=true;sb.innerHTML='<div class="spinner"></div>';
-      fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'update',rowIndex:ri,data:d})})
-      .then(res=>res.json()).then(r=>{sb.disabled=false;sb.innerHTML='<i class="fas fa-save"></i> Simpan';if(r.success){showToast('Berhasil diupdate!','success');closeEditModal();loadOrders();}else showToast(r.message||'Gagal','error');})
-      .catch(er=>{sb.disabled=false;sb.innerHTML='<i class="fas fa-save"></i> Simpan';showToast('Error: '+er.message,'error');});
-    }
-    
-    function confirmDelete(ri){
-      const ov=document.createElement('div');ov.className='modal-overlay active';ov.id='deleteConfirmModal';
-      ov.innerHTML=`<div class="modal" style="max-width:380px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> Hapus</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p>Yakin hapus order ini?</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>`;
-      document.body.appendChild(ov);
-      document.getElementById('confirmDeleteBtn').addEventListener('click',()=>{
-        closeDeleteModal();fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete',rowIndex:ri})})
-        .then(res=>res.json()).then(r=>{if(r.success){showToast('Dihapus!','success');loadOrders();}else showToast(r.message||'Gagal','error');})
-        .catch(er=>showToast('Error: '+er.message,'error'));
-      });
-    }
-    
-    function updateStats(){animateCounter('statTotal',allOrders.length);animateCounter('statPending',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='PENDING').length);animateCounter('statProses',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='PROSES').length);animateCounter('statReady',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='READY').length);animateCounter('statFinish',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='FINISH').length);}
-    function animateCounter(id,t){const el=document.getElementById(id);let c=parseInt(el.textContent)||0;if(c===t)return;const s=t>c?1:-1;let v=c;const tm=setInterval(()=>{v+=s;el.textContent=v;if(v===t)clearInterval(tm);},30);}
-    
-    function downloadExcel(){const fd=getFilteredData();if(!fd.length){showToast('Tidak ada data!','error');return;}try{const eh=['No','Status','Teknisi','Tgl Pengajuan','No. Service','Type (IDNO)','No. Serie','No Gudang','Nama Part','QTY','Prod.','Layanan','Nama Konsumen','No. HP','Tgl Order','No. Order','Keterangan'];const rows=fd.map((o,i)=>[i+1,getVal(o,'STATUS'),getVal(o,'TEKNISI'),formatDateDisplay(getVal(o,'TGL PENGAJUAN ORD')),getVal(o,'NO. SERVICE CASE'),getVal(o,'TYPE (IDNO)'),getVal(o,'NO. SERIE'),getVal(o,'NO GUDANG'),getVal(o,'NAMA PART'),getVal(o,'QTY'),getVal(o,'PROD.'),getVal(o,'LAYANAN'),getVal(o,'NAMA KONSUMEN'),getVal(o,'NO. HP'),formatDateDisplay(getVal(o,'Tgl Order')),getVal(o,'No. Order'),getVal(o,'Keterangan Pemenuhan')]);const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([eh].concat(rows));XLSX.utils.book_append_sheet(wb,ws,'Order');XLSX.writeFile(wb,'Order_Components.xlsx');showToast('Excel terdownload!','success');}catch(er){showToast('Gagal: '+er.message,'error');}}
-    
-    function filterStatus(s,c){currentFilter=s;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');renderTable();}
-    function showToast(m,t){const c=document.getElementById('toastContainer'),ic={success:'fas fa-check-circle',error:'fas fa-exclamation-circle',info:'fas fa-info-circle',warning:'fas fa-exclamation-triangle'},ts=document.createElement('div');ts.className='toast '+t;ts.innerHTML=`<i class="${ic[t]||ic.info}"></i><span>${escapeHtml(m)}</span>`;c.appendChild(ts);setTimeout(()=>{ts.classList.add('removing');setTimeout(()=>ts.remove(),300);},4000);}
-    function updateSyncTime(){document.getElementById('lastSync').textContent='Sync: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
-    
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeInputModal();closeEditModal();closeDeleteModal();document.getElementById('successOverlay').classList.remove('active');}});
-    document.getElementById('inputModal').addEventListener('click',e=>{if(e.target===document.getElementById('inputModal'))closeInputModal();});
-    document.getElementById('editModal').addEventListener('click',e=>{if(e.target===document.getElementById('editModal'))closeEditModal();});
-
-    function initApp(){loadOrders();if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(loadOrders,15000);}
-    document.addEventListener('DOMContentLoaded',()=>{if(checkAuth())initApp();});
+    function initParticles() { const c = $('particles'); const colors = ['rgba(233,69,96,0.3)', 'rgba(240,185,11,0.25)', 'rgba(0,214,143,0.2)']; for (let i = 0; i < 18; i++) { const p = document.createElement('div'); p.className = 'particle'; const sz = 2 + Math.random() * 4; p.style.width = sz + 'px'; p.style.height = sz + 'px'; p.style.left = Math.random() * 100 + '%'; p.style.bottom = '-10px'; p.style.background = colors[Math.floor(Math.random() * colors.length)]; p.style.animationDuration = (10 + Math.random() * 18) + 's'; p.style.animationDelay = Math.random() * 12 + 's'; c.appendChild(p); } }
+    async function init() { initParticles(); await checkConn(); await fetchData(); }
+    init();
   </script>
 </body>
 </html>
