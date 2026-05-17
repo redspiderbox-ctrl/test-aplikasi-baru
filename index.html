@@ -45,7 +45,6 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: var(--bg-primary); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     
-    /* LOGIN */
     .login-wrapper { position: fixed; inset: 0; z-index: 5000; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); transition: opacity 0.5s ease, visibility 0.5s ease; }
     .login-wrapper.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     .login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: var(--shadow), var(--shadow-glow); position: relative; overflow: hidden; z-index: 1; animation: modalSlide 0.5s ease-out; }
@@ -67,7 +66,6 @@
     .login-btn:hover { box-shadow: 0 0 30px rgba(0,212,170,0.4); transform: translateY(-2px); }
     .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
-    /* APP */
     .app-wrapper { display: none; position: relative; z-index: 1; }
     .app-wrapper.visible { display: block; animation: fadeIn 0.5s ease-out; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -277,7 +275,7 @@
     // ==========================================================
     // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
     // ==========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwM1STq8GtVDVCHefizpfiVkox3_wzKOPc-pxwgfNR8PGN-FveLPnPPf5PwShgvgzMg4A/exec';
+    const API_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI';
     
     let allOrders=[], currentFilter='all', autoRefreshInterval=null, newRowIndices=new Set(), isLoadingData=false, searchDebounceTimer=null, isFirstLoad=true, isSubmitting=false;
     const AUTH_KEY = 'orderSystemAuth';
@@ -308,7 +306,20 @@
     function canDelete(s){return(s||'').toUpperCase()==='FINISH';}
     function escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
     
-    // FIX: Robust Date Formatter handling Google Sheet Date Objects
+    // FIX: Helper aman untuk ambil data object tanpa crash karena case sensitive header
+    function getVal(obj, key) {
+      if (!obj) return '';
+      // Cek exact key dulu
+      if (obj[key] !== undefined) return obj[key];
+      // Jika tidak ketemu, cari versi lowercase nya
+      const lowerKey = key.toLowerCase();
+      for (let k in obj) {
+        if (k.toLowerCase() === lowerKey) return obj[k];
+      }
+      return '';
+    }
+
+    // FIX: Robust Date Formatter 
     function formatDateDisplay(d){ 
       if(!d) return '-'; 
       if(typeof d === 'object' && d instanceof Date) {
@@ -322,7 +333,7 @@
       return String(d);
     }
     
-    // FIX: Format Date for HTML input[type="date"] (Hanya menerima YYYY-MM-DD)
+    // FIX: Format Date for HTML input[type="date"]
     function formatDateForInput(d){
       if(!d) return '';
       if(typeof d === 'object' && d instanceof Date) {
@@ -350,7 +361,7 @@
     function handleSubmit(e){
       e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
       const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
-      for(let p of fd.entries()) { d[p[0]] = p[1].trim(); } // Hapus prefix ', biarkan format string biasa ke sheet
+      for(let p of fd.entries()) { d[p[0]] = p[1].trim(); }
       
       const rf=['TEKNISI','TGL PENGAJUAN ORD','TYPE (IDNO)','NAMA PART','QTY','PROD.','LAYANAN','NAMA KONSUMEN','NO. HP'];
       const fl={'TEKNISI':'Teknisi','TGL PENGAJUAN ORD':'Tgl Pengajuan','TYPE (IDNO)':'Type (IDNO)','NAMA PART':'Nama Part','QTY':'QTY','PROD.':'Prod.','LAYANAN':'Layanan','NAMA KONSUMEN':'Nama Konsumen','NO. HP':'No. HP'};
@@ -381,49 +392,52 @@
       }).catch(er=>{isLoadingData=false;if(sd)sd.classList.remove('syncing');showToast('Koneksi error: '+er.message,'error');});
     }
     
-    function getFilteredData(){let f=allOrders;if(currentFilter!=='all')f=f.filter(o=>(o['STATUS']||'').toUpperCase()===currentFilter);const s=(document.getElementById('searchInput').value||'').toLowerCase();if(s)f=f.filter(o=>Object.values(o).some(v=>String(v).toLowerCase().includes(s)));return f;}
+    function getFilteredData(){let f=allOrders;if(currentFilter!=='all')f=f.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()===currentFilter);const s=(document.getElementById('searchInput').value||'').toLowerCase();if(s)f=f.filter(o=>Object.values(o).some(v=>String(v).toLowerCase().includes(s)));return f;}
     
-    // FIX: REPAIR RENDER TABLE LOGIC & CASE SENSITIVE HEADERS
+    // FIX: BULLETPROOF RENDER TABLE
     function renderTable(){
-      const tb=document.getElementById('tableBody'),es=document.getElementById('emptyState'),ft=document.getElementById('tableFooter'),fd=getFilteredData(), te=document.getElementById('dataTableEl');
-      
-      if(fd.length===0){
-        tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return;
+      try {
+        const tb=document.getElementById('tableBody'),es=document.getElementById('emptyState'),ft=document.getElementById('tableFooter'),fd=getFilteredData(), te=document.getElementById('dataTableEl');
+        
+        if(fd.length===0){
+          tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return;
+        }
+        
+        es.style.display='none'; ft.style.display='flex'; if(te) te.style.display='table';
+        document.getElementById('rowCount').textContent=fd.length; document.getElementById('rowTotal').textContent=allOrders.length;
+        
+        let h='';
+        for(let i=0;i<fd.length;i++){
+          const o=fd[i], s=getVal(o,'STATUS')||'PENDING', sc=getStatusClass(s), ri=o._rowIndex, isNew=newRowIndices.has(ri), dl=canDelete(s);
+          h+=`<tr class="${isNew?'new-row':''}">
+            <td>${i+1}</td><td><span class="status-badge ${sc}"><span class="status-dot"></span>${escapeHtml(s)}</span></td>
+            <td class="name-cell">${escapeHtml(getVal(o,'TEKNISI'))}</td><td>${formatDateDisplay(getVal(o,'TGL PENGAJUAN ORD'))}</td>
+            <td>${escapeHtml(getVal(o,'NO. SERVICE CASE'))}</td><td>${escapeHtml(getVal(o,'TYPE (IDNO)'))}</td><td>${escapeHtml(getVal(o,'NO. SERIE'))}</td>
+            <td>${escapeHtml(getVal(o,'NO GUDANG'))}</td><td class="name-cell">${escapeHtml(getVal(o,'NAMA PART'))}</td><td>${escapeHtml(getVal(o,'QTY'))}</td>
+            <td>${escapeHtml(getVal(o,'PROD.'))}</td><td>${escapeHtml(getVal(o,'LAYANAN'))}</td><td class="name-cell">${escapeHtml(getVal(o,'NAMA KONSUMEN'))}</td>
+            <td>${escapeHtml(getVal(o,'NO. HP'))}</td><td class="editable-cell" onclick="openEditModal(${ri})">${formatDateDisplay(getVal(o,'Tgl Order'))}</td>
+            <td class="editable-cell" onclick="openEditModal(${ri})" style="color:var(--accent);font-weight:600;">${escapeHtml(getVal(o,'No. Order'))||'-'}</td>
+            <td class="editable-cell" onclick="openEditModal(${ri})">${escapeHtml(getVal(o,'Keterangan Pemenuhan'))||'-'}</td>
+            <td><div class="action-btns"><button class="action-btn" onclick="openEditModal(${ri})"><i class="fas fa-pen"></i></button><button class="action-btn delete ${dl?'':'disabled-delete'}" onclick="${dl?`confirmDelete(${ri})`:`showDeleteWarning()`}"><i class="fas fa-trash"></i></button></div></td></tr>`;
+        }
+        tb.innerHTML=h;
+      } catch(error) {
+        console.error("Render Error:", error);
+        showToast("Gagal merender tabel. Cek Console (F12) untuk detail.", "error");
       }
-      
-      es.style.display='none'; ft.style.display='flex'; if(te) te.style.display='table';
-      document.getElementById('rowCount').textContent=fd.length; document.getElementById('rowTotal').textContent=allOrders.length;
-      
-      let h='';
-      for(let i=0;i<fd.length;i++){
-        // FIX: Sesuaikan EXACT nama kolom dengan Header Google Sheets (Case Sensitive)
-        const o=fd[i],s=o['STATUS']||'PENDING',sc=getStatusClass(s),ri=o._rowIndex,isNew=newRowIndices.has(ri),dl=canDelete(s);
-        h+=`<tr class="${isNew?'new-row':''}">
-          <td>${i+1}</td><td><span class="status-badge ${sc}"><span class="status-dot"></span>${escapeHtml(s)}</span></td>
-          <td class="name-cell">${escapeHtml(o['TEKNISI']||'')}</td><td>${formatDateDisplay(o['TGL PENGAJUAN ORD'])}</td>
-          <td>${escapeHtml(o['NO. SERVICE CASE']||'')}</td><td>${escapeHtml(o['TYPE (IDNO)']||'')}</td><td>${escapeHtml(o['NO. SERIE']||'')}</td>
-          <td>${escapeHtml(o['NO GUDANG']||'')}</td><td class="name-cell">${escapeHtml(o['NAMA PART']||'')}</td><td>${escapeHtml(o['QTY']||'')}</td>
-          <td>${escapeHtml(o['PROD.']||'')}</td><td>${escapeHtml(o['LAYANAN']||'')}</td><td class="name-cell">${escapeHtml(o['NAMA KONSUMEN']||'')}</td>
-          <td>${escapeHtml(o['NO. HP']||'')}</td><td class="editable-cell" onclick="openEditModal(${ri})">${formatDateDisplay(o['Tgl Order'])}</td>
-          <td class="editable-cell" onclick="openEditModal(${ri})" style="color:var(--accent);font-weight:600;">${escapeHtml(o['No. Order']||'-')}</td>
-          <td class="editable-cell" onclick="openEditModal(${ri})">${escapeHtml(o['Keterangan Pemenuhan']||'-')}</td>
-          <td><div class="action-btns"><button class="action-btn" onclick="openEditModal(${ri})"><i class="fas fa-pen"></i></button><button class="action-btn delete ${dl?'':'disabled-delete'}" onclick="${dl?`confirmDelete(${ri})`:`showDeleteWarning()`}"><i class="fas fa-trash"></i></button></div></td></tr>`;
-      }
-      tb.innerHTML=h;
     }
     
     function showDeleteWarning(){showToast('Hapus hanya untuk status FINISH.','warning');}
     
-    // FIX: Gunakan Exact Nama Kolom
     function openEditModal(ri){
       const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
       document.getElementById('modalRowIndex').value=ri;
-      document.getElementById('modalStatus').value=(o['STATUS']||'PENDING').toUpperCase();
-      document.getElementById('modalTglOrder').value=formatDateForInput(o['Tgl Order']);
-      document.getElementById('modalNoOrder').value=o['No. Order']||'';
-      document.getElementById('modalKeterangan').value=o['Keterangan Pemenuhan']||'';
-      document.getElementById('modalOrderNo').textContent='#'+(o['No. Order']||'-');
-      document.getElementById('modalPartInfo').textContent=(o['NAMA PART']||'-')+' | '+(o['NAMA KONSUMEN']||'-');
+      document.getElementById('modalStatus').value=(getVal(o,'STATUS')||'PENDING').toUpperCase();
+      document.getElementById('modalTglOrder').value=formatDateForInput(getVal(o,'Tgl Order'));
+      document.getElementById('modalNoOrder').value=getVal(o,'No. Order')||'';
+      document.getElementById('modalKeterangan').value=getVal(o,'Keterangan Pemenuhan')||'';
+      document.getElementById('modalOrderNo').textContent='#'+(getVal(o,'No. Order')||'-');
+      document.getElementById('modalPartInfo').textContent=(getVal(o,'NAMA PART')||'-')+' | '+(getVal(o,'NAMA KONSUMEN')||'-');
       document.getElementById('editModal').classList.add('active');
     }
     
@@ -440,9 +454,9 @@
     
     // DELETE DATA
     function confirmDelete(ri){
-      const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;if(!canDelete(o['STATUS'])){showToast('Hapus hanya untuk FINISH!','warning');return;}
+      const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;if(!canDelete(getVal(o,'STATUS'))){showToast('Hapus hanya untuk FINISH!','warning');return;}
       const ov=document.createElement('div');ov.className='modal-overlay active';ov.id='deleteConfirmModal';
-      ov.innerHTML=`<div class="modal" style="max-width:380px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> Hapus</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p>Yakin hapus order <strong style="color:var(--accent);">#${escapeHtml(o['No. Order']||'-')}</strong>?</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>`;
+      ov.innerHTML=`<div class="modal" style="max-width:380px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> Hapus</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p>Yakin hapus order <strong style="color:var(--accent);">#${escapeHtml(getVal(o,'No. Order'))||'-'}</strong>?</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>`;
       document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov)closeDeleteModal();});
       document.getElementById('confirmDeleteBtn').addEventListener('click',()=>{
         closeDeleteModal();fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete',rowIndex:ri})})
@@ -451,10 +465,10 @@
       });
     }
     
-    function updateStats(){animateCounter('statTotal',allOrders.length);animateCounter('statPending',allOrders.filter(o=>(o['STATUS']||'').toUpperCase()==='PENDING').length);animateCounter('statProses',allOrders.filter(o=>(o['STATUS']||'').toUpperCase()==='PROSES').length);animateCounter('statReady',allOrders.filter(o=>(o['STATUS']||'').toUpperCase()==='READY').length);animateCounter('statFinish',allOrders.filter(o=>(o['STATUS']||'').toUpperCase()==='FINISH').length);}
+    function updateStats(){animateCounter('statTotal',allOrders.length);animateCounter('statPending',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='PENDING').length);animateCounter('statProses',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='PROSES').length);animateCounter('statReady',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='READY').length);animateCounter('statFinish',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='FINISH').length);}
     function animateCounter(id,t){const el=document.getElementById(id);let c=parseInt(el.textContent)||0;if(c===t)return;const s=t>c?1:-1;let v=c;const tm=setInterval(()=>{v+=s;el.textContent=v;if(v===t)clearInterval(tm);},30);}
     
-    function downloadExcel(){const fd=getFilteredData();if(!fd.length){showToast('Tidak ada data!','error');return;}const b=document.getElementById('btnDownload');b.disabled=true;b.innerHTML='<div class="spinner"></div>';try{const eh=['No','Status','Teknisi','Tgl Pengajuan','No. Service','Type (IDNO)','No. Serie','No Gudang','Nama Part','QTY','Prod.','Layanan','Nama Konsumen','No. HP','Tgl Order','No. Order','Keterangan'];const rows=fd.map((o,i)=>[i+1,o['STATUS'],o['TEKNISI'],formatDateDisplay(o['TGL PENGAJUAN ORD']),o['NO. SERVICE CASE'],o['TYPE (IDNO)'],o['NO. SERIE'],o['NO GUDANG'],o['NAMA PART'],o['QTY'],o['PROD.'],o['LAYANAN'],o['NAMA KONSUMEN'],o['NO. HP'],formatDateDisplay(o['Tgl Order']),o['No. Order'],o['Keterangan Pemenuhan']]);const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([eh].concat(rows));XLSX.utils.book_append_sheet(wb,ws,'Order');XLSX.writeFile(wb,'Order_'+new Date().toISOString().split('T')[0]+'.xlsx');showToast('Excel terdownload!','success');}catch(er){showToast('Gagal: '+er.message,'error');}setTimeout(()=>{b.disabled=false;b.innerHTML='<i class="fas fa-file-excel"></i> Download';},500);}
+    function downloadExcel(){const fd=getFilteredData();if(!fd.length){showToast('Tidak ada data!','error');return;}const b=document.getElementById('btnDownload');b.disabled=true;b.innerHTML='<div class="spinner"></div>';try{const eh=['No','Status','Teknisi','Tgl Pengajuan','No. Service','Type (IDNO)','No. Serie','No Gudang','Nama Part','QTY','Prod.','Layanan','Nama Konsumen','No. HP','Tgl Order','No. Order','Keterangan'];const rows=fd.map((o,i)=>[i+1,getVal(o,'STATUS'),getVal(o,'TEKNISI'),formatDateDisplay(getVal(o,'TGL PENGAJUAN ORD')),getVal(o,'NO. SERVICE CASE'),getVal(o,'TYPE (IDNO)'),getVal(o,'NO. SERIE'),getVal(o,'NO GUDANG'),getVal(o,'NAMA PART'),getVal(o,'QTY'),getVal(o,'PROD.'),getVal(o,'LAYANAN'),getVal(o,'NAMA KONSUMEN'),getVal(o,'NO. HP'),formatDateDisplay(getVal(o,'Tgl Order')),getVal(o,'No. Order'),getVal(o,'Keterangan Pemenuhan')]);const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([eh].concat(rows));XLSX.utils.book_append_sheet(wb,ws,'Order');XLSX.writeFile(wb,'Order_'+new Date().toISOString().split('T')[0]+'.xlsx');showToast('Excel terdownload!','success');}catch(er){showToast('Gagal: '+er.message,'error');}setTimeout(()=>{b.disabled=false;b.innerHTML='<i class="fas fa-file-excel"></i> Download';},500);}
     
     function filterStatus(s,c){currentFilter=s;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');renderTable();}
     function showToast(m,t){const c=document.getElementById('toastContainer'),ic={success:'fas fa-check-circle',error:'fas fa-exclamation-circle',info:'fas fa-info-circle',warning:'fas fa-exclamation-triangle'},ts=document.createElement('div');ts.className='toast '+t;ts.innerHTML=`<i class="${ic[t]||ic.info}" style="color:var(--${t==='error'?'danger':t})"></i><span>${escapeHtml(m)}</span>`;c.appendChild(ts);setTimeout(()=>{ts.classList.add('removing');setTimeout(()=>ts.remove(),300);},4000);}
