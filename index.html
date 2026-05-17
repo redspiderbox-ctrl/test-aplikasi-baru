@@ -42,12 +42,11 @@
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; transition: background 0.4s ease, color 0.4s ease; }
     body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 20%, rgba(0,212,170,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.04) 0%, transparent 50%); pointer-events: none; z-index: 0; animation: bgFloat 30s ease-in-out infinite alternate; }
     @keyframes bgFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(-2%,-1%) rotate(2deg); } }
-    ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: var(--bg-primary); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: var(--bg-primary); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     
     .login-wrapper { position: fixed; inset: 0; z-index: 5000; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); transition: opacity 0.5s ease, visibility 0.5s ease; }
     .login-wrapper.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     .login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: var(--shadow), var(--shadow-glow); position: relative; overflow: hidden; z-index: 1; animation: modalSlide 0.5s ease-out; }
-    .login-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 50% 50%, var(--accent-glow), transparent 70%); opacity: 0.2; pointer-events: none; z-index: -1; }
     .login-header { text-align: center; margin-bottom: 2rem; }
     .login-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #0b1120; box-shadow: 0 0 30px rgba(0,212,170,0.3); margin: 0 auto 1.25rem; }
     .login-header h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.35rem; }
@@ -108,7 +107,7 @@
     .btn-secondary { background: transparent; border-color: var(--border); color: var(--text-secondary); } .btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
     .btn-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--danger); } .btn-danger:hover { background: rgba(239,68,68,0.2); }
     .btn-sm { padding: 6px 14px; font-size: 0.78rem; } .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-    .btn-download { background: linear-gradient(135deg, #1d6f42, #1a5c38); color: #ffffff; border: 1px solid rgba(29,111,66,0.4); box-shadow: 0 0 16px rgba(29,111,66,0.2); }
+    .btn-download { background: linear-gradient(135deg, #1d6f42, #1a5c38); color: #ffffff; border: 1px solid rgba(29,111,66,0.4); }
     
     .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; position: relative; }
     .table-toolbar { padding: 1.15rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
@@ -123,7 +122,7 @@
     
     .table-wrapper { overflow-x: auto; max-height: 65vh; overflow-y: auto; }
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .data-table thead th { padding: 11px 13px; text-align: left; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; background: var(--table-head-bg); border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; z-index: 5; }
+    .data-table thead th { padding: 11px 13px; text-align: left; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; background: var(--table-head-bg); border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; z-index: 5; }
     .data-table tbody tr { border-bottom: 1px solid rgba(128,128,128,0.15); transition: background 0.2s ease; } .data-table tbody tr:hover { background: var(--row-hover); }
     .data-table tbody td { padding: 10px 13px; color: var(--text-secondary); white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
     .data-table tbody td.name-cell { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500; color: var(--text-primary); }
@@ -148,7 +147,7 @@
     .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0; }
     
     .toast-container { position: fixed; top: 80px; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-    .toast { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius); background: var(--toast-bg); border: 1px solid var(--border); box-shadow: var(--shadow); font-size: 0.85rem; font-weight: 500; animation: toastIn 0.4s ease-out; min-width: 300px; }
+    .toast { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius); background: var(--toast-bg); border: 1px solid var(--border); box-shadow: var(--shadow); font-size: 0.85rem; animation: toastIn 0.4s ease-out; min-width: 300px; }
     .toast.success { border-left: 3px solid var(--success); } .toast.error { border-left: 3px solid var(--danger); } .toast.info { border-left: 3px solid var(--info); } .toast.warning { border-left: 3px solid var(--warning); }
     .toast.removing { animation: toastOut 0.3s ease-in forwards; }
     @keyframes toastIn { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } } @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
@@ -255,16 +254,14 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-     <script>
     // ==========================================================
     // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
     // ==========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzhGef7F82bBR3vYh7wnbDYuW-EHtoccSG2qr_Ciux9LuV1FdypdhLBaAMGAXCfyv47sA/exec';
+    const API_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI';
     
     let allOrders=[], currentFilter='all', autoRefreshInterval=null, isLoadingData=false, isFirstLoad=true, isSubmitting=false;
     const AUTH_KEY = 'orderSystemAuth';
     
-    // Auth System
     function checkAuth() {
       const isAuth = localStorage.getItem(AUTH_KEY) === 'true';
       document.getElementById('loginWrapper').classList.toggle('hidden', isAuth);
@@ -288,55 +285,24 @@
     function canDelete(s){return(s||'').toUpperCase()==='FINISH';}
     function escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
     
-    // FIX: Helper aman untuk mengambil data object (Mengubah Object Date ke String jika perlu)
+    // Helper Aman Case-Insensitive
     function getVal(obj, key) {
       if (!obj) return '';
-      let val = '';
-      if (obj[key] !== undefined) {
-        val = obj[key];
-      } else {
-        const lowerKey = key.toLowerCase();
-        for (let k in obj) { if (k.toLowerCase() === lowerKey) { val = obj[k]; break; } }
-      }
-      // Jika val adalah Object Date dari Google Sheets, ubah ke format YYYY-MM-DD agar bisa dibaca
-      if (val instanceof Date) {
-        const yr = val.getFullYear(); 
-        const mo = String(val.getMonth()+1).padStart(2,'0'); 
-        const da = String(val.getDate()).padStart(2,'0');
-        return yr+'-'+mo+'-'+da;
-      }
-      return val;
+      if (obj[key] !== undefined) return obj[key];
+      const lowerKey = key.toLowerCase();
+      for (let k in obj) { if (k.toLowerCase() === lowerKey) return obj[k]; }
+      return '';
     }
 
-    // FIX: Robust Date Formatter untuk Tampilan Tabel (DD/MM/YYYY)
+    // Formatter Tanggal (Karena GS sudah mengirim YYYY-MM-DD, ini aman)
     function formatDateDisplay(d){ 
       if(!d) return '-'; 
-      // Jika dikirim sebagai Object Date
+      if(typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
       if(typeof d === 'object' && d instanceof Date) {
         const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
         return da+'/'+mo+'/'+yr;
       }
-      // Jika dikirim sebagai String
-      if(typeof d === 'string') {
-        if(d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];} // Dari YYYY-MM-DD ke DD/MM/YYYY
-        if(d.match(/^\d{2}\/\d{2}\/\d{4}$/)) return d; // Sudah format DD/MM/YYYY
-        return d; // Teks lainnya
-      }
       return String(d);
-    }
-    
-    // FIX: Format Date untuk HTML input[type="date"] (Hanya menerima YYYY-MM-DD)
-    function formatDateForInput(d){
-      if(!d) return '';
-      if(typeof d === 'object' && d instanceof Date) {
-        const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
-        return yr+'-'+mo+'-'+da;
-      }
-      if(typeof d === 'string') {
-        if(d.match(/^\d{4}-\d{2}-\d{2}$/)) return d; // Sudah benar
-        if(d.match(/^\d{2}\/\d{2}\/\d{4}$/)) { const p = d.split('/'); return p[2]+'-'+p[1]+'-'+p[0]; } // Balikkan dari DD/MM/YYYY ke YYYY-MM-DD
-      }
-      return '';
     }
 
     let searchDebounceTimer;
@@ -350,7 +316,6 @@
 
     document.getElementById('inpNoHp').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); });
 
-    // SUBMIT NEW ORDER
     function handleSubmit(e){
       e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
       const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
@@ -370,28 +335,20 @@
     
     function resetForm(){document.getElementById('orderForm').reset();document.getElementById('inpTglPengajuan').value=new Date().toISOString().split('T')[0];}
     
-    // LOAD DATA
     function loadOrders(){ 
       if(isLoadingData)return;isLoadingData=true;const sd=document.getElementById('syncDot');if(sd)sd.classList.add('syncing');
       fetch(API_URL).then(res=>res.json()).then(r=>{
         isLoadingData=false;if(sd)sd.classList.remove('syncing');
-        if(r.success){
-          allOrders=r.data;
-          renderTable();updateStats();updateSyncTime();
-        }else showToast('Gagal memuat data','error');
+        if(r.success){ allOrders=r.data; renderTable();updateStats();updateSyncTime(); }
+        else showToast('Gagal memuat data','error');
       }).catch(er=>{isLoadingData=false;if(sd)sd.classList.remove('syncing');showToast('Koneksi error: '+er.message,'error');});
     }
     
     function getFilteredData(){let f=allOrders;if(currentFilter!=='all')f=f.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()===currentFilter);const s=(document.getElementById('searchInput').value||'').toLowerCase();if(s)f=f.filter(o=>Object.values(o).some(v=>String(v).toLowerCase().includes(s)));return f;}
     
-    // REPAIR RENDER TABLE LOGIC
     function renderTable(){
       const tb=document.getElementById('tableBody'),es=document.getElementById('emptyState'),ft=document.getElementById('tableFooter'),fd=getFilteredData(), te=document.getElementById('dataTableEl');
-      
-      if(fd.length===0){
-        tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return;
-      }
-      
+      if(fd.length===0){ tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return; }
       es.style.display='none'; ft.style.display='flex'; if(te) te.style.display='table';
       document.getElementById('rowCount').textContent=fd.length; document.getElementById('rowTotal').textContent=allOrders.length;
       
@@ -418,13 +375,13 @@
       const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
       document.getElementById('modalRowIndex').value=ri;
       document.getElementById('modalStatus').value=(getVal(o,'STATUS')||'PENDING').toUpperCase();
-      document.getElementById('modalTglOrder').value=formatDateForInput(getVal(o,'Tgl Order'));
+      // Ambil value Tgl Order (Sudah dijamin YYYY-MM-DD dari Backend)
+      document.getElementById('modalTglOrder').value=getVal(o,'Tgl Order')||'';
       document.getElementById('modalNoOrder').value=getVal(o,'No. Order')||'';
       document.getElementById('modalKeterangan').value=getVal(o,'Keterangan Pemenuhan')||'';
       document.getElementById('editModal').classList.add('active');
     }
     
-    // UPDATE DATA
     function submitUpdate(){
       const ri=parseInt(document.getElementById('modalRowIndex').value),
             d={status:document.getElementById('modalStatus').value,tglOrder:document.getElementById('modalTglOrder').value,noOrder:document.getElementById('modalNoOrder').value,keterangan:document.getElementById('modalKeterangan').value},
@@ -435,9 +392,7 @@
       .catch(er=>{sb.disabled=false;sb.innerHTML='<i class="fas fa-save"></i> Simpan';showToast('Error: '+er.message,'error');});
     }
     
-    // DELETE DATA
     function confirmDelete(ri){
-      const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
       const ov=document.createElement('div');ov.className='modal-overlay active';ov.id='deleteConfirmModal';
       ov.innerHTML=`<div class="modal" style="max-width:380px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> Hapus</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p>Yakin hapus order ini?</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>`;
       document.body.appendChild(ov);
@@ -463,7 +418,6 @@
 
     function initApp(){resetForm();loadOrders();if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(loadOrders,15000);}
     document.addEventListener('DOMContentLoaded',()=>{if(checkAuth())initApp();});
-  </script>
   </script>
 </body>
 </html>
