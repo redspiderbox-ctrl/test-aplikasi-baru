@@ -45,6 +45,7 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: var(--bg-primary); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     
+    /* LOGIN */
     .login-wrapper { position: fixed; inset: 0; z-index: 5000; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); transition: opacity 0.5s ease, visibility 0.5s ease; }
     .login-wrapper.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     .login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: var(--shadow), var(--shadow-glow); position: relative; overflow: hidden; z-index: 1; animation: modalSlide 0.5s ease-out; }
@@ -56,16 +57,17 @@
     .login-header p { color: var(--text-muted); font-size: 0.85rem; }
     .login-form { display: flex; flex-direction: column; gap: 1.15rem; }
     .login-input-group { position: relative; }
-    .login-input-group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; pointer-events: none; }
+    .login-input-group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; pointer-events: none; transition: color 0.3s; }
     .login-input { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px 12px 42px; font-size: 0.9rem; font-family: inherit; color: var(--text-primary); transition: all 0.3s ease; outline: none; width: 100%; }
     .login-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-dim); }
     .login-input::placeholder { color: var(--text-muted); }
     .login-error { color: var(--danger); font-size: 0.8rem; text-align: center; min-height: 1.2rem; font-weight: 500; }
-    .login-btn { width: 100%; padding: 12px; border-radius: var(--radius); border: none; background: linear-gradient(135deg, var(--accent), #00a88a); color: #0b1120; font-family: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .login-btn { width: 100%; padding: 12px; border-radius: var(--radius); border: none; background: linear-gradient(135deg, var(--accent), #00a88a); color: #0b1120; font-family: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0,212,170,0.2); display: flex; align-items: center; justify-content: center; gap: 8px; }
     [data-theme="light"] .login-btn { color: #ffffff; }
     .login-btn:hover { box-shadow: 0 0 30px rgba(0,212,170,0.4); transform: translateY(-2px); }
     .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
+    /* APP */
     .app-wrapper { display: none; position: relative; z-index: 1; }
     .app-wrapper.visible { display: block; animation: fadeIn 0.5s ease-out; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -74,7 +76,7 @@
     .navbar { position: sticky; top: 0; z-index: 100; background: var(--navbar-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 2rem; transition: background 0.4s ease; }
     .navbar-inner { max-width: 1500px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
     .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #0b1120; font-weight: 800; }
+    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #0b1120; font-weight: 800; box-shadow: 0 0 20px rgba(0,212,170,0.25); }
     [data-theme="light"] .logo-icon { color: #ffffff; }
     .logo-text { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); } .logo-text span { color: var(--accent); }
     .nav-right { display: flex; align-items: center; gap: 12px; }
@@ -275,7 +277,7 @@
     // ==========================================================
     // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
     // ==========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwe5u65OXWzxtL7ETWwWqgN54HS9WghQA0eucpMVrWIi4lxwr5wXDXZgSWZJ8QMLbS-ug/exec';
+    const API_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI';
     
     let allOrders=[], currentFilter='all', autoRefreshInterval=null, newRowIndices=new Set(), isLoadingData=false, searchDebounceTimer=null, isFirstLoad=true, isSubmitting=false;
     const AUTH_KEY = 'orderSystemAuth';
@@ -315,12 +317,12 @@
       }
       if(typeof d === 'string') {
         if(d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
-        if(d.match(/^\d{2}\/\d{2}\/\d{4}$/)) return d;
         return d;
       }
       return String(d);
     }
     
+    // FIX: Format Date for HTML input[type="date"] (Hanya menerima YYYY-MM-DD)
     function formatDateForInput(d){
       if(!d) return '';
       if(typeof d === 'object' && d instanceof Date) {
@@ -348,11 +350,11 @@
     function handleSubmit(e){
       e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
       const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
-      for(let p of fd.entries()) { d[p[0]] = p[0] === 'NO. HP' ? "'" + p[1].trim() : p[1].trim(); }
+      for(let p of fd.entries()) { d[p[0]] = p[1].trim(); } // Hapus prefix ', biarkan format string biasa ke sheet
       
       const rf=['TEKNISI','TGL PENGAJUAN ORD','TYPE (IDNO)','NAMA PART','QTY','PROD.','LAYANAN','NAMA KONSUMEN','NO. HP'];
       const fl={'TEKNISI':'Teknisi','TGL PENGAJUAN ORD':'Tgl Pengajuan','TYPE (IDNO)':'Type (IDNO)','NAMA PART':'Nama Part','QTY':'QTY','PROD.':'Prod.','LAYANAN':'Layanan','NAMA KONSUMEN':'Nama Konsumen','NO. HP':'No. HP'};
-      for(let i=0;i<rf.length;i++){if(!d[rf[i]]||(rf[i]==='NO. HP'&&d[rf[i]]==="'")){showToast('"'+(fl[rf[i]]||rf[i])+'" wajib diisi!','error');isSubmitting=false;return;}}
+      for(let i=0;i<rf.length;i++){if(!d[rf[i]]){showToast('"'+(fl[rf[i]]||rf[i])+'" wajib diisi!','error');isSubmitting=false;return;}}
       
       const sb=document.getElementById('submitBtn'),fl2=document.getElementById('formLoading');
       sb.disabled=true;sb.innerHTML='<div class="spinner"></div> Menyimpan...';fl2.classList.add('active');
@@ -381,9 +383,9 @@
     
     function getFilteredData(){let f=allOrders;if(currentFilter!=='all')f=f.filter(o=>(o['STATUS']||'').toUpperCase()===currentFilter);const s=(document.getElementById('searchInput').value||'').toLowerCase();if(s)f=f.filter(o=>Object.values(o).some(v=>String(v).toLowerCase().includes(s)));return f;}
     
-    // FIX: REPAIR RENDER TABLE LOGIC & DISPLAY
+    // FIX: REPAIR RENDER TABLE LOGIC & CASE SENSITIVE HEADERS
     function renderTable(){
-      const tb=document.getElementById('tableBody'), es=document.getElementById('emptyState'), ft=document.getElementById('tableFooter'), fd=getFilteredData(), te=document.getElementById('dataTableEl');
+      const tb=document.getElementById('tableBody'),es=document.getElementById('emptyState'),ft=document.getElementById('tableFooter'),fd=getFilteredData(), te=document.getElementById('dataTableEl');
       
       if(fd.length===0){
         tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return;
@@ -394,7 +396,8 @@
       
       let h='';
       for(let i=0;i<fd.length;i++){
-        const o=fd[i], s=o['STATUS']||'PENDING', sc=getStatusClass(s), ri=o._rowIndex, isNew=newRowIndices.has(ri), dl=canDelete(s);
+        // FIX: Sesuaikan EXACT nama kolom dengan Header Google Sheets (Case Sensitive)
+        const o=fd[i],s=o['STATUS']||'PENDING',sc=getStatusClass(s),ri=o._rowIndex,isNew=newRowIndices.has(ri),dl=canDelete(s);
         h+=`<tr class="${isNew?'new-row':''}">
           <td>${i+1}</td><td><span class="status-badge ${sc}"><span class="status-dot"></span>${escapeHtml(s)}</span></td>
           <td class="name-cell">${escapeHtml(o['TEKNISI']||'')}</td><td>${formatDateDisplay(o['TGL PENGAJUAN ORD'])}</td>
@@ -411,6 +414,7 @@
     
     function showDeleteWarning(){showToast('Hapus hanya untuk status FINISH.','warning');}
     
+    // FIX: Gunakan Exact Nama Kolom
     function openEditModal(ri){
       const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
       document.getElementById('modalRowIndex').value=ri;
@@ -451,6 +455,7 @@
     function animateCounter(id,t){const el=document.getElementById(id);let c=parseInt(el.textContent)||0;if(c===t)return;const s=t>c?1:-1;let v=c;const tm=setInterval(()=>{v+=s;el.textContent=v;if(v===t)clearInterval(tm);},30);}
     
     function downloadExcel(){const fd=getFilteredData();if(!fd.length){showToast('Tidak ada data!','error');return;}const b=document.getElementById('btnDownload');b.disabled=true;b.innerHTML='<div class="spinner"></div>';try{const eh=['No','Status','Teknisi','Tgl Pengajuan','No. Service','Type (IDNO)','No. Serie','No Gudang','Nama Part','QTY','Prod.','Layanan','Nama Konsumen','No. HP','Tgl Order','No. Order','Keterangan'];const rows=fd.map((o,i)=>[i+1,o['STATUS'],o['TEKNISI'],formatDateDisplay(o['TGL PENGAJUAN ORD']),o['NO. SERVICE CASE'],o['TYPE (IDNO)'],o['NO. SERIE'],o['NO GUDANG'],o['NAMA PART'],o['QTY'],o['PROD.'],o['LAYANAN'],o['NAMA KONSUMEN'],o['NO. HP'],formatDateDisplay(o['Tgl Order']),o['No. Order'],o['Keterangan Pemenuhan']]);const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([eh].concat(rows));XLSX.utils.book_append_sheet(wb,ws,'Order');XLSX.writeFile(wb,'Order_'+new Date().toISOString().split('T')[0]+'.xlsx');showToast('Excel terdownload!','success');}catch(er){showToast('Gagal: '+er.message,'error');}setTimeout(()=>{b.disabled=false;b.innerHTML='<i class="fas fa-file-excel"></i> Download';},500);}
+    
     function filterStatus(s,c){currentFilter=s;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');renderTable();}
     function showToast(m,t){const c=document.getElementById('toastContainer'),ic={success:'fas fa-check-circle',error:'fas fa-exclamation-circle',info:'fas fa-info-circle',warning:'fas fa-exclamation-triangle'},ts=document.createElement('div');ts.className='toast '+t;ts.innerHTML=`<i class="${ic[t]||ic.info}" style="color:var(--${t==='error'?'danger':t})"></i><span>${escapeHtml(m)}</span>`;c.appendChild(ts);setTimeout(()=>{ts.classList.add('removing');setTimeout(()=>ts.remove(),300);},4000);}
     function updateSyncTime(){document.getElementById('lastSync').textContent='Sync: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
