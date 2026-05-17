@@ -254,14 +254,16 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
+   <script>
     // ==========================================================
     // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
     // ==========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwUwKrLLjFoel1c5G4fNktIAhY_1eBEY0isKVHdyOUR4Yk0Zy0BNGyhXy5Gj9MzGV7Aqg/exec';
+    const API_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI';
     
     let allOrders=[], currentFilter='all', autoRefreshInterval=null, isLoadingData=false, isFirstLoad=true, isSubmitting=false;
     const AUTH_KEY = 'orderSystemAuth';
     
+    // Auth System
     function checkAuth() {
       const isAuth = localStorage.getItem(AUTH_KEY) === 'true';
       document.getElementById('loginWrapper').classList.toggle('hidden', isAuth);
@@ -285,24 +287,55 @@
     function canDelete(s){return(s||'').toUpperCase()==='FINISH';}
     function escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
     
-    // Helper Aman Case-Insensitive
+    // FIX: Helper aman untuk mengambil data object (Mengubah Object Date ke String jika perlu)
     function getVal(obj, key) {
       if (!obj) return '';
-      if (obj[key] !== undefined) return obj[key];
-      const lowerKey = key.toLowerCase();
-      for (let k in obj) { if (k.toLowerCase() === lowerKey) return obj[k]; }
-      return '';
+      let val = '';
+      if (obj[key] !== undefined) {
+        val = obj[key];
+      } else {
+        const lowerKey = key.toLowerCase();
+        for (let k in obj) { if (k.toLowerCase() === lowerKey) { val = obj[k]; break; } }
+      }
+      // Jika val adalah Object Date dari Google Sheets, ubah ke format YYYY-MM-DD agar bisa dibaca
+      if (val instanceof Date) {
+        const yr = val.getFullYear(); 
+        const mo = String(val.getMonth()+1).padStart(2,'0'); 
+        const da = String(val.getDate()).padStart(2,'0');
+        return yr+'-'+mo+'-'+da;
+      }
+      return val;
     }
 
-    // Formatter Tanggal (Karena GS sudah mengirim YYYY-MM-DD, ini aman)
+    // FIX: Robust Date Formatter untuk Tampilan Tabel (DD/MM/YYYY)
     function formatDateDisplay(d){ 
       if(!d) return '-'; 
-      if(typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+      // Jika dikirim sebagai Object Date
       if(typeof d === 'object' && d instanceof Date) {
         const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
         return da+'/'+mo+'/'+yr;
       }
+      // Jika dikirim sebagai String
+      if(typeof d === 'string') {
+        if(d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];} // Dari YYYY-MM-DD ke DD/MM/YYYY
+        if(d.match(/^\d{2}\/\d{2}\/\d{4}$/)) return d; // Sudah format DD/MM/YYYY
+        return d; // Teks lainnya
+      }
       return String(d);
+    }
+    
+    // FIX: Format Date untuk HTML input[type="date"] (Hanya menerima YYYY-MM-DD)
+    function formatDateForInput(d){
+      if(!d) return '';
+      if(typeof d === 'object' && d instanceof Date) {
+        const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
+        return yr+'-'+mo+'-'+da;
+      }
+      if(typeof d === 'string') {
+        if(d.match(/^\d{4}-\d{2}-\d{2}$/)) return d; // Sudah benar
+        if(d.match(/^\d{2}\/\d{2}\/\d{4}$/)) { const p = d.split('/'); return p[2]+'-'+p[1]+'-'+p[0]; } // Balikkan dari DD/MM/YYYY ke YYYY-MM-DD
+      }
+      return '';
     }
 
     let searchDebounceTimer;
@@ -316,6 +349,7 @@
 
     document.getElementById('inpNoHp').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); });
 
+    // SUBMIT NEW ORDER
     function handleSubmit(e){
       e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
       const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
@@ -335,20 +369,28 @@
     
     function resetForm(){document.getElementById('orderForm').reset();document.getElementById('inpTglPengajuan').value=new Date().toISOString().split('T')[0];}
     
+    // LOAD DATA
     function loadOrders(){ 
       if(isLoadingData)return;isLoadingData=true;const sd=document.getElementById('syncDot');if(sd)sd.classList.add('syncing');
       fetch(API_URL).then(res=>res.json()).then(r=>{
         isLoadingData=false;if(sd)sd.classList.remove('syncing');
-        if(r.success){ allOrders=r.data; renderTable();updateStats();updateSyncTime(); }
-        else showToast('Gagal memuat data','error');
+        if(r.success){
+          allOrders=r.data;
+          renderTable();updateStats();updateSyncTime();
+        }else showToast('Gagal memuat data','error');
       }).catch(er=>{isLoadingData=false;if(sd)sd.classList.remove('syncing');showToast('Koneksi error: '+er.message,'error');});
     }
     
     function getFilteredData(){let f=allOrders;if(currentFilter!=='all')f=f.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()===currentFilter);const s=(document.getElementById('searchInput').value||'').toLowerCase();if(s)f=f.filter(o=>Object.values(o).some(v=>String(v).toLowerCase().includes(s)));return f;}
     
+    // REPAIR RENDER TABLE LOGIC
     function renderTable(){
       const tb=document.getElementById('tableBody'),es=document.getElementById('emptyState'),ft=document.getElementById('tableFooter'),fd=getFilteredData(), te=document.getElementById('dataTableEl');
-      if(fd.length===0){ tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return; }
+      
+      if(fd.length===0){
+        tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return;
+      }
+      
       es.style.display='none'; ft.style.display='flex'; if(te) te.style.display='table';
       document.getElementById('rowCount').textContent=fd.length; document.getElementById('rowTotal').textContent=allOrders.length;
       
@@ -375,13 +417,13 @@
       const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
       document.getElementById('modalRowIndex').value=ri;
       document.getElementById('modalStatus').value=(getVal(o,'STATUS')||'PENDING').toUpperCase();
-      // Ambil value Tgl Order (Sudah dijamin YYYY-MM-DD dari Backend)
-      document.getElementById('modalTglOrder').value=getVal(o,'Tgl Order')||'';
+      document.getElementById('modalTglOrder').value=formatDateForInput(getVal(o,'Tgl Order'));
       document.getElementById('modalNoOrder').value=getVal(o,'No. Order')||'';
       document.getElementById('modalKeterangan').value=getVal(o,'Keterangan Pemenuhan')||'';
       document.getElementById('editModal').classList.add('active');
     }
     
+    // UPDATE DATA
     function submitUpdate(){
       const ri=parseInt(document.getElementById('modalRowIndex').value),
             d={status:document.getElementById('modalStatus').value,tglOrder:document.getElementById('modalTglOrder').value,noOrder:document.getElementById('modalNoOrder').value,keterangan:document.getElementById('modalKeterangan').value},
@@ -392,7 +434,9 @@
       .catch(er=>{sb.disabled=false;sb.innerHTML='<i class="fas fa-save"></i> Simpan';showToast('Error: '+er.message,'error');});
     }
     
+    // DELETE DATA
     function confirmDelete(ri){
+      const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
       const ov=document.createElement('div');ov.className='modal-overlay active';ov.id='deleteConfirmModal';
       ov.innerHTML=`<div class="modal" style="max-width:380px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> Hapus</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p>Yakin hapus order ini?</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>`;
       document.body.appendChild(ov);
@@ -418,6 +462,7 @@
 
     function initApp(){resetForm();loadOrders();if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(loadOrders,15000);}
     document.addEventListener('DOMContentLoaded',()=>{if(checkAuth())initApp();});
+  </script>
   </script>
 </body>
 </html>
