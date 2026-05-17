@@ -253,6 +253,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
+  <script>
     // ==========================================================
     // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
     // ==========================================================
@@ -261,6 +262,7 @@
     let allOrders=[], currentFilter='all', autoRefreshInterval=null, isLoadingData=false, isFirstLoad=true, isSubmitting=false;
     const AUTH_KEY = 'orderSystemAuth';
     
+    // Auth System
     function checkAuth() {
       const isAuth = localStorage.getItem(AUTH_KEY) === 'true';
       document.getElementById('loginWrapper').classList.toggle('hidden', isAuth);
@@ -284,22 +286,7 @@
     function canDelete(s){return(s||'').toUpperCase()==='FINISH';}
     function escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
     
-    // FIX UTAMA: Formatter Tanggal Super Aman
-    function formatDateDisplay(d){ 
-      if(!d) return '-'; 
-      // Jika dikirim sebagai Object Date
-      if(typeof d === 'object' && d instanceof Date) {
-        const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
-        return da+'/'+mo+'/'+yr;
-      }
-      // Jika dikirim sebagai String YYYY-MM-DD
-      if(typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)){
-        const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];
-      }
-      return String(d);
-    }
-
-    // FIX UTAMA: Helper Aman Case-Insensitive (Auto Convert Date)
+    // FIX: Helper Aman Case-Insensitive & Auto-Convert Object Date
     function getVal(obj, key) {
       if (!obj) return '';
       let val = '';
@@ -316,10 +303,27 @@
       return val;
     }
 
+    // Formatter Tanggal Super Aman
+    function formatDateDisplay(d){ 
+      if(!d) return '-'; 
+      if(typeof d === 'object' && d instanceof Date) {
+        const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
+        return da+'/'+mo+'/'+yr;
+      }
+      if(typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+      return String(d);
+    }
+
     let searchDebounceTimer;
     function debouncedSearch(){clearTimeout(searchDebounceTimer);searchDebounceTimer=setTimeout(renderTable,250);}
     
-    function openInputModal(){resetForm();document.getElementById('inputModal').classList.add('active');}
+    // FIX: Tanggal Pengajuan Otomatis Hari Ini Saat Modal Dibuka
+    function openInputModal(){
+      resetForm(); 
+      document.getElementById('inpTglPengajuan').value = new Date().toISOString().split('T')[0]; // Set otomatis hari ini
+      document.getElementById('inputModal').classList.add('active');
+    }
+    
     function closeInputModal(){document.getElementById('inputModal').classList.remove('active');}
     function closeEditModal(){document.getElementById('editModal').classList.remove('active');}
     function closeDeleteModal(){const m=document.getElementById('deleteConfirmModal');if(m)m.remove();}
@@ -327,6 +331,7 @@
 
     document.getElementById('inpNoHp').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); });
 
+    // SUBMIT NEW ORDER
     function handleSubmit(e){
       e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
       const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
@@ -344,8 +349,9 @@
       .catch(er => { isSubmitting=false;sb.disabled=false;sb.innerHTML='<i class="fas fa-paper-plane"></i> Simpan';fl2.classList.remove('active'); showToast('Error Koneksi: '+er.message,'error'); });
     }
     
-    function resetForm(){document.getElementById('orderForm').reset();document.getElementById('inpTglPengajuan').value=new Date().toISOString().split('T')[0];}
+    function resetForm(){document.getElementById('orderForm').reset();}
     
+    // LOAD DATA
     function loadOrders(){ 
       if(isLoadingData)return;isLoadingData=true;const sd=document.getElementById('syncDot');if(sd)sd.classList.add('syncing');
       fetch(API_URL).then(res=>res.json()).then(r=>{
@@ -426,8 +432,9 @@
     document.getElementById('inputModal').addEventListener('click',e=>{if(e.target===document.getElementById('inputModal'))closeInputModal();});
     document.getElementById('editModal').addEventListener('click',e=>{if(e.target===document.getElementById('editModal'))closeEditModal();});
 
-    function initApp(){resetForm();loadOrders();if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(loadOrders,15000);}
+    function initApp(){loadOrders();if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(loadOrders,15000);}
     document.addEventListener('DOMContentLoaded',()=>{if(checkAuth())initApp();});
+  </script>
   </script>
 </body>
 </html>
