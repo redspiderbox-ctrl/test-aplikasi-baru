@@ -252,11 +252,11 @@
   <div class="success-overlay" id="successOverlay"><div class="success-card"><div class="success-icon"><i class="fas fa-check"></i></div><h3>Berhasil Disimpan!</h3><p>Data order baru tersimpan di Google Sheets.</p><button class="btn btn-primary" onclick="closeSuccess()"><i class="fas fa-check"></i> Selesai</button></div></div>
   <div class="toast-container" id="toastContainer"></div>
 
-  <script>
+   <script>
     // ==========================================================
     // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
     // ==========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbx6YJ0aucjAGVoQj6y0a044eWvkvXZlC7okNENtS6ZRwLB5l9VKI4qH8r-4pbJyF4_lhg/exec';
+    const API_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI';
     
     let allOrders=[], currentFilter='all', autoRefreshInterval=null, isLoadingData=false, isFirstLoad=true, isSubmitting=false;
     const AUTH_KEY = 'orderSystemAuth';
@@ -302,7 +302,7 @@
       return val;
     }
 
-    // Formatter Tanggal Super Aman
+    // FIX: Formatter Tanggal Super Aman
     function formatDateDisplay(d){ 
       if(!d) return '-'; 
       if(typeof d === 'object' && d instanceof Date) {
@@ -310,19 +310,22 @@
         return da+'/'+mo+'/'+yr;
       }
       if(typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+      if(typeof d === 'string' && d.match(/^\d{2}\/\d{2}\/\d{4}$/)) return d;
       return String(d);
     }
 
     let searchDebounceTimer;
     function debouncedSearch(){clearTimeout(searchDebounceTimer);searchDebounceTimer=setTimeout(renderTable,250);}
     
-    // FIX: Tanggal Pengajuan Otomatis Hari Ini Saat Modal Dibuka
+    // FIX: Input Modal langsung set tanggal hari ini saat dibuka
     function openInputModal(){
-      resetForm(); 
-      document.getElementById('inpTglPengajuan').value = new Date().toISOString().split('T')[0]; // Set otomatis hari ini
+      document.getElementById('orderForm').reset();
+      // Ambil tanggal komputer saat ini
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('inpTglPengajuan').value = today;
       document.getElementById('inputModal').classList.add('active');
     }
-    
+
     function closeInputModal(){document.getElementById('inputModal').classList.remove('active');}
     function closeEditModal(){document.getElementById('editModal').classList.remove('active');}
     function closeDeleteModal(){const m=document.getElementById('deleteConfirmModal');if(m)m.remove();}
@@ -330,7 +333,6 @@
 
     document.getElementById('inpNoHp').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); });
 
-    // SUBMIT NEW ORDER
     function handleSubmit(e){
       e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
       const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
@@ -348,9 +350,12 @@
       .catch(er => { isSubmitting=false;sb.disabled=false;sb.innerHTML='<i class="fas fa-paper-plane"></i> Simpan';fl2.classList.remove('active'); showToast('Error Koneksi: '+er.message,'error'); });
     }
     
-    function resetForm(){document.getElementById('orderForm').reset();}
+    function resetForm(){
+      document.getElementById('orderForm').reset();
+      // Saat reset, tanggal otomatis di-set kembali ke hari ini
+      document.getElementById('inpTglPengajuan').value = new Date().toISOString().split('T')[0];
+    }
     
-    // LOAD DATA
     function loadOrders(){ 
       if(isLoadingData)return;isLoadingData=true;const sd=document.getElementById('syncDot');if(sd)sd.classList.add('syncing');
       fetch(API_URL).then(res=>res.json()).then(r=>{
